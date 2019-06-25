@@ -6,7 +6,7 @@ let customWallPointX2 = null;
 let customWallPointY2 = null;
 
 function setup() {
-    createCanvas(displayWidth, displayHeight);
+    createCanvas(displayWidth - 50, displayHeight - 130);
     textSize(22);
     // for (let index = 0; index < 4; index++) {
     //     walls.push(new Wall(random(width), random(height), random(width), random(height)));
@@ -56,8 +56,8 @@ function mouseClicked() {
 
 function keyPressed() {
     if (keyCode === UP_ARROW) {
-        source.setRays(source.rays.length + 50);
+        source.setRays(source.rays.length + 25);
     } else if (keyCode === DOWN_ARROW) {
-        source.setRays(source.rays.length - 50);
+        source.setRays(source.rays.length - 25);
     }
 }
