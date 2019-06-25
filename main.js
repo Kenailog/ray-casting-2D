@@ -23,10 +23,10 @@ function setup() {
 function draw() {
     background(0);
     fill(255, 255, 255);
-    text('Points of collision: ' + source.collidingPoints, 10, 40);
-    text('Rays casted: ' + source.rays.length, 10, 80);
+    text('points of collision: ' + source.collidingPoints, 10, 40);
+    text('casted rays: ' + source.rays.length, 10, 80);
     text('mouse click -> mouse click to draw line', 10, 120);
-    text('use up & down arrows to ajust number of rays casted', 10, 160);
+    text('use up & down arrows to adjust number of rays', 10, 160);
     walls.forEach(element => {
         element.show();
     });
@@ -35,7 +35,9 @@ function draw() {
     source.update(mouseX, mouseY);
     if (customWallPointX1 && customWallPointY1) {
         stroke(255);
+        strokeWeight(10);
         line(customWallPointX1, customWallPointY1, mouseX, mouseY);
+        strokeWeight(1);
     }
 }
 
