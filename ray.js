@@ -1,13 +1,17 @@
 class Ray {
     constructor(position, angle) {
         this.position = position;
-        this.direction = p5.Vector.fromAngle(angle);
+        this.setAngle(angle);
     }
 
     setDirection(x, y) {
         this.direction.x = x - this.direction.x;
         this.direction.y = y - this.direction.y;
         this.direction.normalize();
+    }
+
+    setAngle(angle) {
+        this.direction = p5.Vector.fromAngle(angle);
     }
 
     show() {

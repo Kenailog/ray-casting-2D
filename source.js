@@ -3,27 +3,50 @@ class Source {
         this.radius = createVector(radiusX, radiusY);
         this.position = createVector(width / 2, height / 2);
         this.rays = [];
+        this.fov = 60;
+        this.rotation = 0;
         this.collidingPoints = 0;
-        this.setRays(360);
+        for (let index = - this.fov / 2; index < this.fov / 2; index++) {
+            this.rays.push(new Ray(this.position, radians(index)));
+        }
+        this.factor = this.fov / this.rays.length;
+    }
+
+    setFov(fov) {
+        this.fov = fov;
+        this.updateRays(this.rays.length);
     }
 
     setRays(rays) {
-        if (rays < 1) {
-            return;
+        this.updateRays(rays);
+    }
+
+    rotate(rotation) {
+        this.rotation += rotation;
+        let index = 0;
+        for (let i = - this.fov / 2; i < this.fov / 2; i += this.factor) {
+            this.rays[index].setAngle(radians(i) + this.rotation);
+            index++;
         }
+    }
+
+    move(direction) {
+        const velocity = p5.Vector.fromAngle(this.rotation);
+        velocity.setMag(direction);
+        this.position.add(velocity);
+    }
+
+    updateRays(rays) {
         this.rays.length = 0;
-        const factor = 360 / rays;
-        for (let index = 0; index < 360; index += factor) {
-            this.rays.push(new Ray(this.position, radians(index)));
+        this.factor = this.fov / rays;
+        for (let index = - this.fov / 2; index < this.fov / 2; index += this.factor) {
+            this.rays.push(new Ray(this.position, radians(index) + this.rotation));
         }
     }
 
     show() {
         fill(255);
         ellipse(this.position.x, this.position.y, this.radius.x, this.radius.y);
-        // this.rays.forEach(element => {
-        //     element.show();
-        // });
     }
 
     lookFor(walls) {
@@ -51,7 +74,7 @@ class Source {
         this.collidingPoints = collidingPoints;
     }
 
-    update(x, y) {
-        this.position.set(x, y);
-    }
+    // update(x, y) {
+    //     this.position.set(x, y);
+    // }
 }
