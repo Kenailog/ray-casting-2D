@@ -3,10 +3,10 @@ class Source {
         this.radius = createVector(radiusX, radiusY);
         this.position = createVector(width / 2, height / 2);
         this.rays = [];
-        this.fov = 60;
+        this.fov = 30;
         this.rotation = 0;
         this.collidingPoints = 0;
-        for (let index = - this.fov / 2; index < this.fov / 2; index++) {
+        for (let index = - this.fov / 2; index < this.fov / 2; index += .25) {
             this.rays.push(new Ray(this.position, radians(index)));
         }
         this.factor = this.fov / this.rays.length;
@@ -66,9 +66,11 @@ class Source {
                 }
             });
             if (closestPoint) {
-                stroke(255, 100);
+                stroke(255, 5);
+                strokeWeight(15);
                 line(this.position.x, this.position.y, closestPoint.x, closestPoint.y);
                 collidingPoints++;
+                strokeWeight(1);
             }
         });
         this.collidingPoints = collidingPoints;

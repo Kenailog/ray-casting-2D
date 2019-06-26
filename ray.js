@@ -16,6 +16,7 @@ class Ray {
 
     show() {
         stroke(255);
+        strokeWeight(5);
         line(this.position.x, this.position.y, this.direction.x, this.direction.y);
     }
 

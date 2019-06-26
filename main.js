@@ -5,22 +5,22 @@ let fov;
 let drawMode;
 let walls = [];
 let source;
-let customWallPointX1 = null;
-let customWallPointY1 = null;
-let customWallPointX2 = null;
-let customWallPointY2 = null;
+let customWallPointX1;
+let customWallPointY1;
+let customWallPointX2;
+let customWallPointY2;
 
 function setup() {
-    createCanvas(displayWidth, displayHeight - 130);
+    createCanvas(displayWidth - 10, displayHeight - 150);
     textSize(size);
-    fovSlider = createSlider(0, 360, 30);
+    fovSlider = createSlider(0, 360, 60);
     fovSlider.position(80, 90);
     fovSlider.input(() => {
         fov = fovSlider.value();
         source.setFov(fov);
     });
 
-    raysSlider = createSlider(0, 1000, 360, 4);
+    raysSlider = createSlider(0, 500, 60, 4);
     raysSlider.position(80, 120);
     raysSlider.input(() => {
         rays = raysSlider.value();
@@ -44,14 +44,14 @@ function setup() {
 
 function draw() {
     if (keyIsDown(LEFT_ARROW)) {
-        source.rotate(-.05);
+        source.rotate(-.03);
     } else if (keyIsDown(RIGHT_ARROW)) {
-        source.rotate(.05);
+        source.rotate(.03);
     }
     if (keyIsDown(UP_ARROW)) {
-        source.move(2);
+        source.move(1.5);
     } else if (keyIsDown(DOWN_ARROW)) {
-        source.move(-2);
+        source.move(-1.5);
     }
 
     background(0);
@@ -62,7 +62,7 @@ function draw() {
     text('ctrl to toogle draw mode: '.concat(drawMode ? "on" : "off"), 10, 55 + size);
     text('fov: ' + fov, 10, 90 + size);
     text('rays: ' + source.rays.length, 10, 120 + size);
-    text('points of collision: ' + source.collidingPoints, 10, 170 + size);
+    text('points of collision: ' + source.collidingPoints, 10, 160 + size);
 
     walls.forEach(element => {
         element.show();
@@ -72,7 +72,7 @@ function draw() {
     // source.update(mouseX, mouseY);
     if (customWallPointX1 && customWallPointY1) {
         stroke(255);
-        strokeWeight(10);
+        strokeWeight(5);
         line(customWallPointX1, customWallPointY1, mouseX, mouseY);
         strokeWeight(1);
     }
