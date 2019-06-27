@@ -66,8 +66,8 @@ class Source {
                 }
             });
             if (closestPoint) {
-                stroke(255, 5);
-                strokeWeight(15);
+                stroke(255, 60);
+                strokeWeight(lineStrokeWeight);
                 line(this.position.x, this.position.y, closestPoint.x, closestPoint.y);
                 collidingPoints++;
                 strokeWeight(1);

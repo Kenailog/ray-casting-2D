@@ -2,6 +2,7 @@ const size = 16;
 let fovSlider;
 let raysSlider;
 let fov;
+let lineStrokeWeight = 1;
 let drawMode;
 let walls = [];
 let source;
@@ -57,23 +58,25 @@ function draw() {
     background(0);
     fill(255, 255, 255);
 
-    text('mouse click -> mouse click to draw line', 10, 5 + size);
+    text('mouse click -> mouse click to draw', 10, 5 + size);
     text('use arrows to move', 10, 30 + size);
     text('ctrl to toogle draw mode: '.concat(drawMode ? "on" : "off"), 10, 55 + size);
     text('fov: ' + fov, 10, 90 + size);
     text('rays: ' + source.rays.length, 10, 120 + size);
     text('points of collision: ' + source.collidingPoints, 10, 160 + size);
+    text('line stroke weight: ' + lineStrokeWeight, 10, 190 + size);
 
-    walls.forEach(element => {
-        element.show();
-    });
+    walls.forEach(wall => wall.show());
     source.lookFor(walls);
     source.show();
-    // source.update(mouseX, mouseY);
     if (customWallPointX1 && customWallPointY1) {
         stroke(255);
-        strokeWeight(5);
-        line(customWallPointX1, customWallPointY1, mouseX, mouseY);
+        strokeWeight(lineStrokeWeight + 4);
+        // line(customWallPointX1, customWallPointY1, mouseX, mouseY);
+        line(customWallPointX1, customWallPointY1, mouseX, customWallPointY1);
+        line(mouseX, customWallPointY1, mouseX, mouseY);
+        line(mouseX, mouseY, customWallPointX1, mouseY);
+        line(customWallPointX1, mouseY, customWallPointX1, customWallPointY1);
         strokeWeight(1);
     }
 }
@@ -85,7 +88,7 @@ function mouseClicked() {
     if (customWallPointX1 && customWallPointY1) {
         customWallPointX2 = mouseX;
         customWallPointY2 = mouseY;
-        walls.push(new Wall(customWallPointX1, customWallPointY1, customWallPointX2, customWallPointY2));
+        const rect = new Rectangle(customWallPointX1, customWallPointY1, customWallPointX2, customWallPointY2);
         customWallPointX1 = null;
         customWallPointY1 = null;
         customWallPointX2 = null;
@@ -100,6 +103,16 @@ function keyPressed() {
     switch (keyCode) {
         case CONTROL:
             drawMode = !drawMode;
+            break;
+        case 49:
+            if (lineStrokeWeight > 1) {
+                lineStrokeWeight--;
+            }
+            break;
+        case 50:
+            if (lineStrokeWeight < 20) {
+                lineStrokeWeight++;
+            }
             break;
     }
 }
