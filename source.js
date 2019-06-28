@@ -1,7 +1,7 @@
 class Source {
-    constructor(radiusX, radiusY) {
+    constructor(radiusX, radiusY, positionX, poistionY) {
         this.radius = createVector(radiusX, radiusY);
-        this.position = createVector(width / 2, height / 2);
+        this.position = createVector(positionX, poistionY);
         this.rays = [];
         this.fov = 60;
         this.rotation = 0;

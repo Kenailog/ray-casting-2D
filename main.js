@@ -52,7 +52,7 @@ function setup() {
     walls.push(new Wall(0, 0, 0, sceneHeight));
     walls.push(new Wall(sceneWidth, 0, sceneWidth, sceneHeight));
 
-    source = new Source(10, 10);
+    source = new Source(10, 10, width / 4, height * .5);
     fov = source.fov;
 }
 
