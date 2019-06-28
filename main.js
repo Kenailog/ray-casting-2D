@@ -1,4 +1,4 @@
-const size = 16;
+const size = 14;
 let fovSlider;
 let raysSlider;
 let fov;
@@ -13,6 +13,8 @@ let customWallPointY2;
 let val = 0.0;
 
 let scene3D;
+let minimapWidth;
+let minimapHeight;
 let sceneWidth;
 let sceneHeight;
 
@@ -22,10 +24,15 @@ let rectBrightness;
 
 function setup() {
     frameRate(60);
-    sceneWidth = windowWidth / 2;
+    sceneWidth = windowWidth * .7;
     sceneHeight = windowHeight;
+    minimapWidth = sceneWidth * .4;
+    minimapHeight = sceneHeight / 2;
     createCanvas(displayWidth - 10, displayHeight - 150);
     textSize(size);
+
+    source = new Source(10, 10, width / 7, height * .25);
+    
     fovSlider = createSlider(0, 360, 60);
     fovSlider.position(80, 60);
     fovSlider.input(() => {
@@ -43,16 +50,15 @@ function setup() {
     drawMode = false;
 
     for (let index = 0; index < 15; index++) {
-        const rect = new Rectangle(noise(val) * sceneWidth, noise(val + .3) * sceneHeight, noise(val - .2) * sceneWidth, noise(val + .5) * sceneHeight);
+        const rect = new Rectangle(noise(val) * minimapWidth, noise(val + .3) * minimapHeight, noise(val - .2) * minimapWidth, noise(val + .5) * minimapHeight);
         val += .9;
     }
 
-    walls.push(new Wall(0, 0, sceneWidth, 0));
-    walls.push(new Wall(0, sceneHeight, sceneWidth, sceneHeight));
-    walls.push(new Wall(0, 0, 0, sceneHeight));
-    walls.push(new Wall(sceneWidth, 0, sceneWidth, sceneHeight));
+    walls.push(new Wall(0, 0, minimapWidth, 0));
+    walls.push(new Wall(0, minimapHeight, minimapWidth, minimapHeight));
+    walls.push(new Wall(0, 0, 0, minimapHeight));
+    walls.push(new Wall(minimapWidth, 0, minimapWidth, minimapHeight));
 
-    source = new Source(10, 10, width / 4, height * .5);
     fov = source.fov;
 }
 
@@ -73,16 +79,16 @@ function draw() {
 
     text('mouse click -> mouse click to draw', 10, 5 + size);
     text('use arrows to move', 10, 30 + size);
-    text('ctrl to toogle draw mode: '.concat(drawMode ? "on" : "off"), 290, 5 + size);
+    text('ctrl to toogle draw mode: '.concat(drawMode ? "on" : "off"), 10, 120 + size);
     text('fov: ' + fov, 10, 60 + size);
     text('rays: ' + source.rays.length, 10, 90 + size);
-    text('points of collision: ' + source.collidingPoints, 290, 30 + size);
-    text('1 & 2 to change line stroke weight: ' + lineStrokeWeight, 290, 60 + size);
+    text('points of collision: ' + source.collidingPoints, 10, 150 + size);
 
-    rectWidth = sceneWidth / source.rays.length;    
-    
+    rectWidth = sceneWidth / source.rays.length;
+
+    // floor
     push();
-    translate(width / 2, height / 2);
+    translate(width * .3, height / 2);
     for (let index = 0; index < 100; index++) {
         noStroke();
         fill(sqrt(index) * 10);
@@ -90,21 +96,23 @@ function draw() {
     }
     pop();
 
+    // 3D view
     push();
-    translate(width / 2, 0);
+    translate(width * .3, 0);
     let i = 0;
     source.rays.forEach(ray => {
-        rectBrightness = 255 - ray.distance + 20;
+        // rectBrightness = 255 - ray.distance + 20;
+        rectBrightness = (1 / ray.distance ** 2) * 400000; 
         rectHeight = (1 / ray.distance) * 10000;
         noStroke();
         rectMode(CENTER);
-        fill(rectBrightness);
-        rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight);   
+        fill(rectBrightness < 15 ? random(20) : rectBrightness > 160 ? 160 : rectBrightness);
+        rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight);
     });
     pop();
-    
+
     push();
-    translate(0, height / 4);
+    translate(0, height / 2);
     source.lookFor(walls);
     walls.forEach(wall => wall.show());
     source.show();
@@ -113,9 +121,9 @@ function draw() {
         strokeWeight(lineStrokeWeight + 4);
         // line(customWallPointX1, customWallPointY1, mouseX, mouseY);
         line(customWallPointX1, customWallPointY1, mouseX, customWallPointY1);
-        line(mouseX, customWallPointY1, mouseX, mouseY);
-        line(mouseX, mouseY, customWallPointX1, mouseY);
-        line(customWallPointX1, mouseY, customWallPointX1, customWallPointY1);
+        line(mouseX, customWallPointY1, mouseX, mouseY - 320);
+        line(mouseX, mouseY - 320, customWallPointX1, mouseY - 320);
+        line(customWallPointX1, mouseY - 320, customWallPointX1, customWallPointY1);
         strokeWeight(1);
     }
     pop();
@@ -127,7 +135,7 @@ function mouseClicked() {
     }
     if (customWallPointX1 && customWallPointY1) {
         customWallPointX2 = mouseX;
-        customWallPointY2 = mouseY;
+        customWallPointY2 = mouseY - 320;
         walls.push(new Wall(customWallPointX1, customWallPointY1, customWallPointX2, customWallPointY1));
         walls.push(new Wall(customWallPointX2, customWallPointY1, customWallPointX2, customWallPointY2));
         walls.push(new Wall(customWallPointX2, customWallPointY2, customWallPointX1, customWallPointY2));
@@ -139,7 +147,7 @@ function mouseClicked() {
         customWallPointY2 = null;
     } else {
         customWallPointX1 = mouseX;
-        customWallPointY1 = mouseY;
+        customWallPointY1 = mouseY - 320;
     }
 }
 
@@ -147,16 +155,6 @@ function keyPressed() {
     switch (keyCode) {
         case CONTROL:
             drawMode = !drawMode;
-            break;
-        case 49:
-            if (lineStrokeWeight > 1) {
-                lineStrokeWeight--;
-            }
-            break;
-        case 50:
-            if (lineStrokeWeight < 20) {
-                lineStrokeWeight++;
-            }
             break;
     }
 }
