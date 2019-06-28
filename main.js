@@ -83,10 +83,10 @@ function draw() {
     
     push();
     translate(width / 2, height / 2);
-
-    for (let index = 0; index < 30; index++) {
+    for (let index = 0; index < 100; index++) {
         noStroke();
-        rect(0, 20 + 10 * index, sceneWidth, 20);
+        fill(sqrt(index) * 10);
+        rect(0, 20 + 5 * index, sceneWidth, 5);
     }
     pop();
 
