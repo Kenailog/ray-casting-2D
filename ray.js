@@ -2,6 +2,7 @@ class Ray {
     constructor(position, angle) {
         this.position = position;
         this.setAngle(angle);
+        this.distance;
     }
 
     setDirection(x, y) {

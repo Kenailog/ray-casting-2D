@@ -1,7 +1,8 @@
 class Rectangle {
-    constructor(x1, y1, x2, y2) {
+    constructor(x1, y1, x2, y2, rotation) {
         this.p1 = createVector(x1, y1);
         this.p3 = createVector(x2, y2);
+        this.rotation = rotation;
     
         this.width = this.p3.x - this.p1.x;
         this.heigth = this.p3.y - this.p1.y;

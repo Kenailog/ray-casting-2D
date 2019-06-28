@@ -3,7 +3,7 @@ class Source {
         this.radius = createVector(radiusX, radiusY);
         this.position = createVector(width / 2, height / 2);
         this.rays = [];
-        this.fov = 30;
+        this.fov = 60;
         this.rotation = 0;
         this.collidingPoints = 0;
         for (let index = - this.fov / 2; index < this.fov / 2; index += .25) {
@@ -50,32 +50,35 @@ class Source {
     }
 
     lookFor(walls) {
-        let collidingPoints = 0;
-
+        this.collidingPoints = 0;
         this.rays.forEach(ray => {
             let closestPoint = null;
-            let track = Infinity;
+            ray.distance = Infinity;
             walls.forEach(wall => {
                 const pointOfCollision = ray.castRay(wall);
                 if (pointOfCollision) {
-                    const distance = this.position.dist(pointOfCollision);
-                    if (distance < track) {
-                        track = distance;
+                    let tmp_distance = this.position.dist(pointOfCollision);
+                    const angle = ray.direction.heading() - this.rotation;
+                    tmp_distance *= cos(angle);
+                    if (tmp_distance < ray.distance) {
+                        ray.distance = tmp_distance;
                         closestPoint = pointOfCollision;
                     }
                 }
             });
             if (closestPoint) {
-                stroke(255, 60);
-                strokeWeight(lineStrokeWeight);
-                line(this.position.x, this.position.y, closestPoint.x, closestPoint.y);
-                collidingPoints++;
-                strokeWeight(1);
+                this.showRayToPoint(closestPoint);
+                this.collidingPoints++;
             }
         });
-        this.collidingPoints = collidingPoints;
     }
 
+    showRayToPoint(point) {
+        stroke(255, 90);
+        strokeWeight(lineStrokeWeight);
+        line(this.position.x, this.position.y, point.x, point.y);
+        strokeWeight(1);
+    }
     // update(x, y) {
     //     this.position.set(x, y);
     // }
