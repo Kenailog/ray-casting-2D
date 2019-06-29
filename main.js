@@ -40,7 +40,7 @@ function setup() {
         source.setFov(fov);
     });
 
-    raysSlider = createSlider(0, 500, 240, 2);
+    raysSlider = createSlider(0, 10000, 240, 2);
     raysSlider.position(80, 90);
     raysSlider.input(() => {
         rays = raysSlider.value();
@@ -118,7 +118,7 @@ function draw() {
         rectHeight = (1 / ray.distance) * source.fov * sceneHeight;
         noStroke();
         rectMode(CENTER);
-        fill(rectBrightness < 15 ? random(20) : rectBrightness > 160 ? 160 : rectBrightness);
+        fill(rectBrightness);
         rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight);
     });
     pop();
