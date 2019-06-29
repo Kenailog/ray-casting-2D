@@ -40,7 +40,7 @@ function setup() {
         source.setFov(fov);
     });
 
-    raysSlider = createSlider(0, 10000, 240, 2);
+    raysSlider = createSlider(0, 500, 240, 2);
     raysSlider.position(80, 90);
     raysSlider.input(() => {
         rays = raysSlider.value();
@@ -49,7 +49,7 @@ function setup() {
 
     drawMode = false;
 
-    for (let index = 0; index < 15; index++) {
+    for (let index = 0; index < 10; index++) {
         const rect = new Rectangle(noise(val) * minimapWidth, noise(val + .3) * minimapHeight, noise(val - .2) * minimapWidth, noise(val + .5) * minimapHeight);
         val += .9;
     }
@@ -108,11 +108,16 @@ function draw() {
     }
     pop();
 
+    push();
+    translate(0, height / 2);
+    scene3D = source.lookFor(walls);
+    pop();
+
     // 3D view
     push();
     translate(width * .3, 0);
     let i = 0;
-    source.rays.forEach(ray => {
+    scene3D.forEach(ray => {
         // rectBrightness = 255 - ray.distance + 20;
         rectBrightness = (1 / ray.distance ** 2) * 400000;
         rectHeight = (1 / ray.distance) * source.fov * sceneHeight;
@@ -125,7 +130,6 @@ function draw() {
 
     push();
     translate(0, height / 2);
-    source.lookFor(walls);
     walls.forEach(wall => wall.show());
     source.show();
     if (customWallPointX1 && customWallPointY1) {

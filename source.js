@@ -73,6 +73,7 @@ class Source {
                 this.collidingPoints++;
             }
         });
+        return this.rays;
     }
 
     showRayToPoint(point) {
