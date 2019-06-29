@@ -83,16 +83,28 @@ function draw() {
     text('fov: ' + fov, 10, 60 + size);
     text('rays: ' + source.rays.length, 10, 90 + size);
     text('points of collision: ' + source.collidingPoints, 10, 150 + size);
+    text('FPS: ' + frameRate(), 10, 180 + size);
 
     rectWidth = sceneWidth / source.rays.length;
 
+    // sky
+    push();
+    translate(width * .3, 0);
+    for (let index = 0; index < 100; index++) {
+        noStroke();
+        // fill(sqrt(index) * 15, sqrt(index) * 15, 0);
+        fill(255, 255, 0, index * 2);
+        rect(0, 5 * index, sceneWidth, 5);
+    }
+    pop();
+    
     // floor
     push();
     translate(width * .3, height / 2);
     for (let index = 0; index < 100; index++) {
         noStroke();
         fill(sqrt(index) * 10);
-        rect(0, 20 + 5 * index, sceneWidth, 5);
+        rect(0, 10 + 5 * index, sceneWidth, 5);
     }
     pop();
 
