@@ -6,7 +6,7 @@ class Source {
         this.fov = 60;
         this.rotation = 0;
         this.collidingPoints = 0;
-        for (let index = - this.fov / 2; index < this.fov / 2; index += .25) {
+        for (let index = -this.fov / 2; index < this.fov / 2; index += .25) {
             this.rays.push(new Ray(this.position, radians(index)));
         }
         this.factor = this.fov / this.rays.length;
@@ -24,7 +24,7 @@ class Source {
     rotate(rotation) {
         this.rotation += rotation;
         let index = 0;
-        for (let i = - this.fov / 2; i < this.fov / 2; i += this.factor) {
+        for (let i = -this.fov / 2; i < this.fov / 2; i += this.factor) {
             this.rays[index].setAngle(radians(i) + this.rotation);
             index++;
         }
@@ -39,7 +39,7 @@ class Source {
     updateRays(rays) {
         this.rays.length = 0;
         this.factor = this.fov / rays;
-        for (let index = - this.fov / 2; index < this.fov / 2; index += this.factor) {
+        for (let index = -this.fov / 2; index < this.fov / 2; index += this.factor) {
             this.rays.push(new Ray(this.position, radians(index) + this.rotation));
         }
     }
@@ -59,7 +59,9 @@ class Source {
                 if (pointOfCollision) {
                     let tmp_distance = this.position.dist(pointOfCollision);
                     const angle = ray.direction.heading() - this.rotation;
-                    tmp_distance *= cos(angle);
+                    if (!mouseIsPressed) {
+                        tmp_distance *= cos(angle);
+                    }
                     if (tmp_distance < ray.distance) {
                         ray.distance = tmp_distance;
                         closestPoint = pointOfCollision;
@@ -74,12 +76,12 @@ class Source {
     }
 
     showRayToPoint(point) {
-        stroke(255, 90);
-        strokeWeight(lineStrokeWeight);
-        line(this.position.x, this.position.y, point.x, point.y);
-        strokeWeight(1);
-    }
-    // update(x, y) {
-    //     this.position.set(x, y);
-    // }
+            stroke(255, 90);
+            strokeWeight(lineStrokeWeight);
+            line(this.position.x, this.position.y, point.x, point.y);
+            strokeWeight(1);
+        }
+        // update(x, y) {
+        //     this.position.set(x, y);
+        // }
 }

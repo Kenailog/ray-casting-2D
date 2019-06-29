@@ -32,7 +32,7 @@ function setup() {
     textSize(size);
 
     source = new Source(10, 10, width / 7, height * .25);
-    
+
     fovSlider = createSlider(0, 360, 60);
     fovSlider.position(80, 60);
     fovSlider.input(() => {
@@ -97,7 +97,7 @@ function draw() {
         rect(0, 5 * index, sceneWidth, 5);
     }
     pop();
-    
+
     // floor
     push();
     translate(width * .3, height / 2);
@@ -114,8 +114,8 @@ function draw() {
     let i = 0;
     source.rays.forEach(ray => {
         // rectBrightness = 255 - ray.distance + 20;
-        rectBrightness = (1 / ray.distance ** 2) * 400000; 
-        rectHeight = (1 / ray.distance) * 10000;
+        rectBrightness = (1 / ray.distance ** 2) * 400000;
+        rectHeight = (1 / ray.distance) * source.fov * sceneHeight;
         noStroke();
         rectMode(CENTER);
         fill(rectBrightness < 15 ? random(20) : rectBrightness > 160 ? 160 : rectBrightness);
