@@ -118,8 +118,8 @@ function draw() {
     translate(width * .3, 0);
     let i = 0;
     scene3D.forEach(ray => {
-        // rectBrightness = 255 - ray.distance + 20;
-        rectBrightness = (1 / ray.distance ** 2) * 400000;
+        rectBrightness = 255 - ray.distance + 20;
+        // rectBrightness = (1 / ray.distance ** 2) * 400000;
         rectHeight = (1 / ray.distance) * source.fov * sceneHeight;
         noStroke();
         rectMode(CENTER);

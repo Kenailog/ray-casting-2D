@@ -1,10 +1,11 @@
 class Source {
-    constructor(radiusX, radiusY, positionX, poistionY) {
+    constructor(radiusX, radiusY, positionX, positionY) {
         this.radius = createVector(radiusX, radiusY);
-        this.position = createVector(positionX, poistionY);
+        this.position = createVector(positionX, positionY);
+        this.rotation = 0;
+        this.velocity = 0;
         this.rays = [];
         this.fov = 60;
-        this.rotation = 0;
         this.collidingPoints = 0;
         for (let index = -this.fov / 2; index < this.fov / 2; index += .25) {
             this.rays.push(new Ray(this.position, radians(index)));
@@ -31,9 +32,8 @@ class Source {
     }
 
     move(direction) {
-        const velocity = p5.Vector.fromAngle(this.rotation);
-        velocity.setMag(direction);
-        this.position.add(velocity);
+        this.velocity = p5.Vector.fromAngle(this.rotation).setMag(direction);
+        this.position.add(this.velocity);
     }
 
     updateRays(rays) {
@@ -59,9 +59,7 @@ class Source {
                 if (pointOfCollision) {
                     let tmp_distance = this.position.dist(pointOfCollision);
                     const angle = ray.direction.heading() - this.rotation;
-                    if (!mouseIsPressed) {
-                        tmp_distance *= cos(angle);
-                    }
+                    tmp_distance *= cos(angle);
                     if (tmp_distance < ray.distance) {
                         ray.distance = tmp_distance;
                         closestPoint = pointOfCollision;
@@ -77,12 +75,9 @@ class Source {
     }
 
     showRayToPoint(point) {
-            stroke(255, 90);
-            strokeWeight(lineStrokeWeight);
-            line(this.position.x, this.position.y, point.x, point.y);
-            strokeWeight(1);
-        }
-        // update(x, y) {
-        //     this.position.set(x, y);
-        // }
+        stroke(255, 90);
+        strokeWeight(lineStrokeWeight);
+        line(this.position.x, this.position.y, point.x, point.y);
+        strokeWeight(1);
+    }
 }
