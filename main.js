@@ -35,7 +35,7 @@ function setup() {
 
     source = new Source(10, 10, width / 7, height * .25);
 
-    fovSlider = createSlider(0, 360, 75);
+    fovSlider = createSlider(0, 360, 60);
     fovSlider.position(80, (height / 2) + 55);
     fovSlider.input(() => {
         fov = fovSlider.value();

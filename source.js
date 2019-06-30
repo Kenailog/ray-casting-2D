@@ -3,7 +3,7 @@ class Source {
         this.radius = createVector(radiusX, radiusY);
         this.position = createVector(positionX, poistionY);
         this.rays = [];
-        this.fov = 75;
+        this.fov = 60;
         this.rotation = 0;
         this.collidingPoints = 0;
         for (let index = -this.fov / 2; index < this.fov / 2; index += .25) {
