@@ -18,6 +18,8 @@ let minimapHeight;
 let sceneWidth;
 let sceneHeight;
 
+let numberOfRectInFloor;
+
 let rectWidth;
 let rectHeight;
 let rectBrightness;
@@ -33,21 +35,19 @@ function setup() {
 
     source = new Source(10, 10, width / 7, height * .25);
 
-    fovSlider = createSlider(0, 360, 60);
-    fovSlider.position(80, 60);
+    fovSlider = createSlider(0, 360, 75);
+    fovSlider.position(80, (height / 2) + 55);
     fovSlider.input(() => {
         fov = fovSlider.value();
         source.setFov(fov);
     });
 
-    raysSlider = createSlider(0, 500, 240, 2);
-    raysSlider.position(80, 90);
+    raysSlider = createSlider(0, 500, 240);
+    raysSlider.position(80, (height / 2) + 85);
     raysSlider.input(() => {
         rays = raysSlider.value();
         source.setRays(rays);
     });
-
-    drawMode = false;
 
     for (let index = 0; index < 10; index++) {
         const rect = new Rectangle(noise(val) * minimapWidth, noise(val + .3) * minimapHeight, noise(val - .2) * minimapWidth, noise(val + .5) * minimapHeight);
@@ -59,7 +59,7 @@ function setup() {
     walls.push(new Wall(0, 0, 0, minimapHeight));
     walls.push(new Wall(minimapWidth, 0, minimapWidth, minimapHeight));
 
-    fov = source.fov;
+    drawMode = false;
 }
 
 function draw() {
@@ -69,23 +69,24 @@ function draw() {
         source.rotate(.05);
     }
     if (keyIsDown(UP_ARROW)) {
-        source.move(2);
+        source.move(3);
     } else if (keyIsDown(DOWN_ARROW)) {
-        source.move(-2);
+        source.move(-3);
     }
 
     background(0);
     fill(255, 255, 255);
 
+    push();
+    translate(0, height / 2);
     text('mouse click -> mouse click to draw', 10, 5 + size);
     text('use arrows to move', 10, 30 + size);
-    text('ctrl to toogle draw mode: '.concat(drawMode ? "on" : "off"), 10, 120 + size);
-    text('fov: ' + fov, 10, 60 + size);
-    text('rays: ' + source.rays.length, 10, 90 + size);
-    text('points of collision: ' + source.collidingPoints, 10, 150 + size);
-    text('FPS: ' + frameRate(), 10, 180 + size);
-
-    rectWidth = sceneWidth / source.rays.length;
+    text('ctrl to toogle draw mode: '.concat(drawMode ? "on" : "off"), 10, 115 + size);
+    text('fov: ' + source.fov, 10, 55 + size);
+    text('rays: ' + source.rays.length, 10, 85 + size);
+    text('points of collision: ' + source.collidingPoints, 10, 145 + size);
+    text('FPS: ' + round(frameRate()), 10, 175 + size);
+    pop();
 
     // sky
     push();
@@ -99,21 +100,20 @@ function draw() {
     pop();
 
     // floor
+    numberOfRectInFloor = (height / 2) / 5;
     push();
     translate(width * .3, height / 2);
-    for (let index = 0; index < 100; index++) {
+    for (let index = 0; index < numberOfRectInFloor; index++) {
         noStroke();
         fill(sqrt(index) * 10);
         rect(0, 10 + 5 * index, sceneWidth, 5);
     }
     pop();
 
-    push();
-    translate(0, height / 2);
-    scene3D = source.lookFor(walls);
-    pop();
 
     // 3D view
+    scene3D = source.lookFor(walls);
+    rectWidth = sceneWidth / scene3D.length;
     push();
     translate(width * .3, 0);
     let i = 0;
@@ -128,21 +128,17 @@ function draw() {
     });
     pop();
 
-    push();
-    translate(0, height / 2);
     walls.forEach(wall => wall.show());
     source.show();
     if (customWallPointX1 && customWallPointY1) {
         stroke(255);
         strokeWeight(lineStrokeWeight + 4);
-        // line(customWallPointX1, customWallPointY1, mouseX, mouseY);
         line(customWallPointX1, customWallPointY1, mouseX, customWallPointY1);
-        line(mouseX, customWallPointY1, mouseX, mouseY - 320);
-        line(mouseX, mouseY - 320, customWallPointX1, mouseY - 320);
-        line(customWallPointX1, mouseY - 320, customWallPointX1, customWallPointY1);
+        line(mouseX, customWallPointY1, mouseX, mouseY);
+        line(mouseX, mouseY, customWallPointX1, mouseY);
+        line(customWallPointX1, mouseY, customWallPointX1, customWallPointY1);
         strokeWeight(1);
     }
-    pop();
 }
 
 function mouseClicked() {
@@ -151,19 +147,18 @@ function mouseClicked() {
     }
     if (customWallPointX1 && customWallPointY1) {
         customWallPointX2 = mouseX;
-        customWallPointY2 = mouseY - 320;
+        customWallPointY2 = mouseY;
         walls.push(new Wall(customWallPointX1, customWallPointY1, customWallPointX2, customWallPointY1));
         walls.push(new Wall(customWallPointX2, customWallPointY1, customWallPointX2, customWallPointY2));
         walls.push(new Wall(customWallPointX2, customWallPointY2, customWallPointX1, customWallPointY2));
         walls.push(new Wall(customWallPointX1, customWallPointY2, customWallPointX1, customWallPointY1));
-        // const rect = new Rectangle(customWallPointX1, customWallPointY1, customWallPointX2, customWallPointY2);
         customWallPointX1 = null;
         customWallPointY1 = null;
         customWallPointX2 = null;
         customWallPointY2 = null;
     } else {
         customWallPointX1 = mouseX;
-        customWallPointY1 = mouseY - 320;
+        customWallPointY1 = mouseY;
     }
 }
 

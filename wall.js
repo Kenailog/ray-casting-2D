@@ -8,5 +8,6 @@ class Wall {
         stroke(255);
         strokeWeight(lineStrokeWeight + 2);
         line(this.p1.x, this.p1.y, this.p2.x, this.p2.y);
+        strokeWeight(0);
     }
 }
