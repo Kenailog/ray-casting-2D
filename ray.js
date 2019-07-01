@@ -26,10 +26,9 @@ class Ray {
         }
 
         const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator;
-        const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator;
+        const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator; // It's also distance
         if (t >= 0 && t <= 1 && u >= 0) {
-            // console.log(u);
-            return createVector(x1 + t * (x2 - x1), y1 + t * (y2 - y1));
+            return [createVector(x1 + t * (x2 - x1), y1 + t * (y2 - y1)), u]; // returns point and distance
         } else {
             return;
         }

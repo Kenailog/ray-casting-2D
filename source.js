@@ -55,9 +55,10 @@ class Source {
             let closestPoint = null;
             ray.distance = Infinity;
             walls.forEach(wall => {
-                const pointOfCollision = ray.castRay(wall);
-                if (pointOfCollision) {
-                    let tmp_distance = this.position.dist(pointOfCollision);
+                const pointAndDistance = ray.castRay(wall);
+                if (pointAndDistance) {
+                    const pointOfCollision = pointAndDistance[0];
+                    let tmp_distance = pointAndDistance[1];
                     const angle = ray.direction.heading() - this.rotation;
                     tmp_distance *= cos(angle);
                     if (tmp_distance < ray.distance) {
