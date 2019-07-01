@@ -105,7 +105,7 @@ function draw() {
     translate(width * .3, height / 2);
     for (let index = 0; index < numberOfRectInFloor; index++) {
         noStroke();
-        fill(sqrt(index) * 10);
+        fill(index);
         rect(0, 10 + 5 * index, sceneWidth, 5);
     }
     pop();
