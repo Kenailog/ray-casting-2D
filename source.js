@@ -83,44 +83,36 @@ class Source {
         const xWallOffset = 1;
         for (let wall of walls) {
             if (wall.p1.x < wall.p2.x) {
-                if (this.position.x >= wall.p1.x - xWallOffset && this.position.x <= wall.p2.x + xWallOffset) {
+                if (this.position.x >= wall.p1.x && this.position.x <= wall.p2.x) {
                     if (this.position.y >= wall.p1.y && this.position.y <= wall.p1.y + yWallOffset) {
                         this.position.y += yOffset;
-                        break;
                     } else if (this.position.y <= wall.p1.y && this.position.y >= wall.p1.y - yWallOffset) {
                         this.position.y -= yOffset;
-                        break;
                     }
                 }
             } else if (wall.p1.x > wall.p2.x) {
-                if (this.position.x <= wall.p1.x + xWallOffset && this.position.x >= wall.p2.x - xWallOffset) {
+                if (this.position.x <= wall.p1.x && this.position.x >= wall.p2.x) {
                     if (this.position.y >= wall.p1.y && this.position.y <= wall.p1.y + yWallOffset) {
                         this.position.y += yOffset;
-                        break;
                     } else if (this.position.y <= wall.p1.y && this.position.y >= wall.p1.y - yWallOffset) {
                         this.position.y -= yOffset;
-                        break;
                     }
                 }
             }
             if (wall.p1.y < wall.p2.y) {
-                if (this.position.y >= wall.p1.y - yWallOffset && this.position.y <= wall.p2.y + yWallOffset) {
+                if (this.position.y >= wall.p1.y && this.position.y <= wall.p2.y) {
                     if (this.position.x >= wall.p1.x && this.position.x <= wall.p1.x + xWallOffset) {
                         this.position.x += xOffset;
-                        break;
                     } else if (this.position.x <= wall.p1.x && this.position.x >= wall.p1.x - xWallOffset) {
                         this.position.x -= xOffset;
-                        break;
                     }
                 }
             } else if (wall.p1.y > wall.p2.y) {
-                if (this.position.y <= wall.p1.y + yWallOffset && this.position.y >= wall.p2.y - yWallOffset) {
+                if (this.position.y <= wall.p1.y && this.position.y >= wall.p2.y) {
                     if (this.position.x >= wall.p1.x && this.position.x <= wall.p1.x + xWallOffset) {
                         this.position.x += xOffset;
-                        break;
                     } else if (this.position.x <= wall.p1.x && this.position.x >= wall.p1.x - xWallOffset) {
                         this.position.x -= xOffset;
-                        break;
                     }
                 }
             }

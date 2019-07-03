@@ -117,7 +117,7 @@ function draw() {
     translate(minimapWidth, 0);
     let i = 0;
     scene3D.forEach(ray => {
-        rectBrightness = (1 / ray.distance ** 2) * source.fov * 2000;
+        rectBrightness = (1 / ray.distance ** 2) * source.fov * 1500;
         rectBrightness = constrain(rectBrightness, 0, 180);
         rectHeight = (1 / ray.distance) * source.fov * sceneHeight;
         noStroke();
