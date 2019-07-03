@@ -75,7 +75,6 @@ function draw() {
     }
 
     background(0);
-    // fill(255, 255, 255);
 
     push();
     translate(0, minimapHeight);
@@ -91,7 +90,7 @@ function draw() {
     // sky
     push();
     translate(minimapWidth, 0);
-    for (let index = 0; index < 100; index++) {
+    for (let index = 0; index < numberOfRectInFloor; index++) {
         noStroke();
         // fill(sqrt(index) * 15, sqrt(index) * 15, 0);
         fill(255, 255, 0, index * 2);
@@ -105,7 +104,7 @@ function draw() {
     translate(minimapWidth, height / 2);
     for (let index = 0; index < numberOfRectInFloor; index++) {
         noStroke();
-        fill(index - 20);
+        fill(index - 10);
         rect(0, 10 + 5 * index, sceneWidth, 5);
     }
     pop();
@@ -118,7 +117,7 @@ function draw() {
     translate(minimapWidth, 0);
     let i = 0;
     scene3D.forEach(ray => {
-        rectBrightness = (1 / ray.distance) * source.fov * 30;
+        rectBrightness = (1 / ray.distance ** 2) * source.fov * 2000;
         rectBrightness = constrain(rectBrightness, 0, 180);
         rectHeight = (1 / ray.distance) * source.fov * sceneHeight;
         noStroke();
@@ -128,6 +127,7 @@ function draw() {
     });
     pop();
 
+    source.preventColliding(walls);
     walls.forEach(wall => wall.show());
     source.show();
     if (customWallPointX1 && customWallPointY1) {
