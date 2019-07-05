@@ -137,7 +137,7 @@ function draw() {
     let i = 0;
     scene3D.forEach(ray => {
         rectBrightness = (1 / ray.distance ** 2) * source.fov * 1500;
-        rectBrightness = constrain(rectBrightness, 0, 150);
+        rectBrightness = constrain(rectBrightness, 15, 150);
         rectHeight = (1 / ray.distance) * source.fov * sceneHeight;
         noStroke();
         rectMode(CENTER);
