@@ -76,11 +76,11 @@ class Source {
     }
 
     preventColliding(walls) {
-        const xOffset = 1;
-        const yOffset = 1;
+        const xOffset = .5;
+        const yOffset = .5;
 
-        const yWallOffset = 1;
-        const xWallOffset = 1;
+        const yWallOffset = .5;
+        const xWallOffset = .5;
         for (let wall of walls) {
             if (wall.p1.x < wall.p2.x) {
                 if (this.position.x >= wall.p1.x && this.position.x <= wall.p2.x) {

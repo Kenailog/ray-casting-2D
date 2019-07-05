@@ -24,7 +24,26 @@ let rectWidth;
 let rectHeight;
 let rectBrightness;
 
+let gunSpriteSheet;
+let gunAnimation = [];
+let isFiring = false;
+let fireFrameCounter;
+
+function preload() {
+    gunSpriteSheet = loadImage('assets/gunSheet.png');
+}
+
 function setup() {
+    gunAnimation.push(gunSpriteSheet.get(0, 0, 100, 154));
+    gunAnimation.push(gunSpriteSheet.get(100, 0, 80, 154));
+    gunAnimation.push(gunSpriteSheet.get(180, 0, 90, 154));
+    gunAnimation.push(gunSpriteSheet.get(270, 0, 72, 154));
+    gunAnimation.push(gunSpriteSheet.get(342, 0, 90, 154));
+    gunAnimation.push(gunSpriteSheet.get(430, 0, 558 - 430, 154));
+    gunAnimation.push(gunSpriteSheet.get(558, 0, 688 - 558, 154));
+    gunAnimation.push(gunSpriteSheet.get(688, 0, 807 - 688, 154));
+    gunAnimation.push(gunSpriteSheet.get(807, 0, 926 - 807, 154));
+
     frameRate(60);
     sceneWidth = windowWidth * .85;
     sceneHeight = windowHeight;
@@ -69,9 +88,9 @@ function draw() {
         source.rotate(.05);
     }
     if (keyIsDown(UP_ARROW)) {
-        source.move(1);
+        source.move(.5);
     } else if (keyIsDown(DOWN_ARROW)) {
-        source.move(-1);
+        source.move(-.5);
     }
 
     background(0);
@@ -118,13 +137,24 @@ function draw() {
     let i = 0;
     scene3D.forEach(ray => {
         rectBrightness = (1 / ray.distance ** 2) * source.fov * 1500;
-        rectBrightness = constrain(rectBrightness, 0, 180);
+        rectBrightness = constrain(rectBrightness, 0, 150);
         rectHeight = (1 / ray.distance) * source.fov * sceneHeight;
         noStroke();
         rectMode(CENTER);
         fill(rectBrightness);
         rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight / 2);
     });
+    if (!isFiring) {
+        fireFrameCounter = 1;
+        image(gunAnimation[0], sceneWidth / 2 - gunAnimation[0].width / 2, sceneHeight - gunAnimation[0].height); // gun
+    } else {
+        if (Number.isInteger(fireFrameCounter)) {
+            image(gunAnimation[fireFrameCounter], sceneWidth / 2 - gunAnimation[fireFrameCounter].width / 2, sceneHeight - gunAnimation[fireFrameCounter].height);
+        } else {
+            image(gunAnimation[fireFrameCounter - .5], sceneWidth / 2 - gunAnimation[fireFrameCounter - .5].width / 2, sceneHeight - gunAnimation[fireFrameCounter - .5].height);
+        }
+        fireFrameCounter == gunAnimation.length - 1 ? isFiring = false : fireFrameCounter += .5;
+    }
     pop();
 
     source.preventColliding(walls);
@@ -167,5 +197,14 @@ function keyPressed() {
         case CONTROL:
             drawMode = !drawMode;
             break;
+        case 32:
+            if (!isFiring) {
+                isFiring = true;
+            }
+            break;
     }
 }
+
+// function playAnimation(animation) {
+//     image(animation[frameCount], width / 2, sceneHeight - 300);
+// }
