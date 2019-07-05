@@ -1,35 +1,35 @@
-const size = 14;
-let fovSlider;
-let raysSlider;
-let fov;
-let lineStrokeWeight = 1;
-let drawMode;
-let walls = [];
-let source;
-let customWallPointX1;
+const size = 14; // font size
+let fovSlider; // change field of view
+let raysSlider; // change number of casted rays
+let fov; // field of view
+let lineStrokeWeight = 1; // lines thickness
+let walls = []; // array holding all walls in scene
+let source; // player
+let drawMode; // enable/disable draw mode
+let customWallPointX1; // point holding point used in draw mode
 let customWallPointY1;
 let customWallPointX2;
 let customWallPointY2;
-let val = 0.0;
+let val = 0.0; // used for random location when loading first walls to scene
 
-let scene3D;
+let scene3D; // array for rays, used in rendering 3D view
 let minimapWidth;
 let minimapHeight;
 let sceneWidth;
 let sceneHeight;
 
-let numberOfRectInFloor;
+let numberOfRectInFloor; // number of rectangles in floor
 
 let rectWidth;
 let rectHeight;
 let rectBrightness;
 
-let gunSpriteSheet;
-let gunAnimation = [];
-let isFiring = false;
-let fireFrameCounter;
+let gunSpriteSheet; // gun sprite sheet
+let gunAnimation = []; // array holding each frame from gun sprite sheet
+let isFiring = false; // used to check firing state for proper displaying frames 
+let fireFrameCounter; // controls which frame should be used in a particular draw function (loop) iteration
 
-let soundFire;
+let soundFire; // holds fire sound
 
 function preload() {
     gunSpriteSheet = loadImage('assets/gunSheet.png');
@@ -37,6 +37,9 @@ function preload() {
 }
 
 function setup() {
+    /*
+    *  add frames from sprite sheet to array
+    */
     gunAnimation.push(gunSpriteSheet.get(0, 0, 100, 154));
     gunAnimation.push(gunSpriteSheet.get(100, 0, 80, 154));
     gunAnimation.push(gunSpriteSheet.get(180, 0, 90, 154));
@@ -47,16 +50,48 @@ function setup() {
     gunAnimation.push(gunSpriteSheet.get(688, 0, 807 - 688, 154));
     gunAnimation.push(gunSpriteSheet.get(807, 0, 926 - 807, 154));
 
+    /*
+    *  scales each image in sprite sheet
+    */
+    gunAnimation.forEach(frame => {
+        frame.resize(0, 180);
+    })
+
+    /*
+    *  sets frame rate
+    */
     frameRate(60);
+    
+    /*
+    *  sets scene size
+    */
     sceneWidth = windowWidth * .85;
     sceneHeight = windowHeight;
+
+    /*
+    *  sets minimap size
+    */
     minimapWidth = sceneWidth * .2;
     minimapHeight = sceneHeight * .3;
+
+    /*
+    *  creates canvas with given values
+    */
     createCanvas(displayWidth - 10, displayHeight - 150);
+
+    /*
+    *  sets size of text
+    */
     textSize(size);
 
+    /*
+    *  creates instance of source object and assings it to variable
+    */
     source = new Source(10, 10, minimapWidth / 2, minimapHeight / 2);
 
+    /*
+    *  creates sliders for fov and rays at position
+    */
     fovSlider = createSlider(0, 360, 60);
     fovSlider.position(80, minimapHeight + 55);
     fovSlider.input(() => {
@@ -71,19 +106,31 @@ function setup() {
         source.setRays(rays);
     });
 
+    /*
+    *  loads random rectangles to scene 
+    */
     for (let index = 0; index < 10; index++) {
         const rect = new Rectangle(noise(val) * minimapWidth, noise(val + .3) * minimapHeight, noise(val - .2) * minimapWidth, noise(val + .5) * minimapHeight);
         val += .9;
     }
 
+    /*
+    *  loads walls to each side of scene
+    */
     walls.push(new Wall(0, 0, minimapWidth, 0));
     walls.push(new Wall(0, minimapHeight, minimapWidth, minimapHeight));
     walls.push(new Wall(0, 0, 0, minimapHeight));
     walls.push(new Wall(minimapWidth, 0, minimapWidth, minimapHeight));
 
+    /*
+    *  sets draw mode to off
+    */
     drawMode = false;
 }
 
+/*
+*  main loop
+*/
 function draw() {
     if (keyIsDown(LEFT_ARROW)) {
         source.rotate(-.05);
@@ -133,7 +180,7 @@ function draw() {
 
 
     // 3D view
-    scene3D = source.lookFor(walls); // assignmentprevents flickering when changing number of rays, which occurs when iterating directly
+    scene3D = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
     rectWidth = sceneWidth / scene3D.length;
     push();
     translate(minimapWidth, 0);
@@ -149,14 +196,11 @@ function draw() {
     });
     if (!isFiring) {
         fireFrameCounter = 1;
-        image(gunAnimation[0], sceneWidth / 2 - gunAnimation[0].width / 2, sceneHeight - gunAnimation[0].height); // gun
+        image(gunAnimation[0], sceneWidth / 2 - gunAnimation[0].width / 2, sceneHeight - gunAnimation[0].height - 8); // gun
     } else {
-        if (Number.isInteger(fireFrameCounter)) {
-            image(gunAnimation[fireFrameCounter], sceneWidth / 2 - gunAnimation[fireFrameCounter].width / 2, sceneHeight - gunAnimation[fireFrameCounter].height);
-        } else {
-            image(gunAnimation[fireFrameCounter - .5], sceneWidth / 2 - gunAnimation[fireFrameCounter - .5].width / 2, sceneHeight - gunAnimation[fireFrameCounter - .5].height);
-        }
-        fireFrameCounter == gunAnimation.length - 1 ? isFiring = false : fireFrameCounter += .5;
+        let index = Number.isInteger(fireFrameCounter) ? fireFrameCounter : floor(fireFrameCounter);
+        image(gunAnimation[index], sceneWidth / 2 - gunAnimation[index].width / 2, sceneHeight - gunAnimation[index].height - 8);
+        fireFrameCounter >= gunAnimation.length - 1 ? isFiring = false : fireFrameCounter += .2;
     }
     pop();
 
@@ -208,7 +252,3 @@ function keyPressed() {
             break;
     }
 }
-
-// function playAnimation(animation) {
-//     image(animation[frameCount], width / 2, sceneHeight - 300);
-// }
