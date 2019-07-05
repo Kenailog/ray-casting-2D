@@ -29,8 +29,11 @@ let gunAnimation = [];
 let isFiring = false;
 let fireFrameCounter;
 
+let soundFire;
+
 function preload() {
     gunSpriteSheet = loadImage('assets/gunSheet.png');
+    soundFire = loadSound('assets/dsshotgn.wav');
 }
 
 function setup() {
@@ -200,6 +203,7 @@ function keyPressed() {
         case 32:
             if (!isFiring) {
                 isFiring = true;
+                soundFire.play();
             }
             break;
     }
