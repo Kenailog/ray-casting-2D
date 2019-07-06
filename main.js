@@ -29,10 +29,16 @@ let gunAnimation = []; // array holding each frame from gun sprite sheet
 let isFiring = false; // used to check firing state for proper displaying frames 
 let fireFrameCounter; // controls which frame should be used in a particular draw function (loop) iteration
 
+let enemySpriteSheet; // enemy sprite sheet
+let enemyAnimationToward = []; // holds frames where enemy is oriented toward your position
+
+let enemies = []; // array holding enemies
+
 let soundFire; // holds fire sound
 
 function preload() {
     gunSpriteSheet = loadImage('assets/gunSheet.png');
+    enemySpriteSheet = loadImage('assets/Imp-from-Doom-Spritesheet.png');
     soundFire = loadSound('assets/dsshotgn.wav');
 }
 
@@ -57,11 +63,19 @@ function setup() {
         frame.resize(0, 180);
     })
 
+    enemyAnimationToward.push(enemySpriteSheet.get(0, 0, 40, 60));
+    enemyAnimationToward.push(enemySpriteSheet.get(210, 0, 40, 60));
+    enemyAnimationToward.push(enemySpriteSheet.get(415, 0, 40, 60));
+    enemyAnimationToward.push(enemySpriteSheet.get(110, 60, 40, 60));
+    enemyAnimationToward.push(enemySpriteSheet.get(330, 70, 50, 60));
+    enemyAnimationToward.push(enemySpriteSheet.get(40, 120, 50, 60));
+    enemyAnimationToward.push(enemySpriteSheet.get(290, 130, 40, 60));
+
     /*
     *  sets frame rate
     */
     frameRate(60);
-    
+
     /*
     *  sets scene size
     */
@@ -126,6 +140,8 @@ function setup() {
     *  sets draw mode to off
     */
     drawMode = false;
+
+    enemies.push(new Enemy(sceneWidth / 2, sceneHeight / 2, enemyAnimationToward));
 }
 
 /*
@@ -206,6 +222,10 @@ function draw() {
 
     source.preventColliding(walls);
     walls.forEach(wall => wall.show());
+    enemies.forEach(enemy => {
+        enemy.show();
+        enemy.animate();
+    });
     source.show();
     if (customWallPointX1 && customWallPointY1) {
         stroke(255);
