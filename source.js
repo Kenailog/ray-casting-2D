@@ -7,7 +7,7 @@ class Source {
         this.rays = [];
         this.fov = 60;
         this.collidingPoints = 0;
-        for (let index = -this.fov / 2; index < this.fov / 2; index += .25) {
+        for (let index = -this.fov / 2; index < this.fov / 2; index += .5) {
             this.rays.push(new Ray(this.position, radians(index)));
         }
         this.factor = this.fov / this.rays.length;
@@ -49,13 +49,14 @@ class Source {
         ellipse(this.position.x, this.position.y, this.radius.x, this.radius.y);
     }
 
-    lookFor(walls) {
+    lookFor(array) {
+        let distances = [];
         this.collidingPoints = 0;
         this.rays.forEach(ray => {
             let closestPoint = null;
             ray.distance = Infinity;
-            walls.forEach(wall => {
-                const pointAndDistance = ray.castRay(wall);
+            array.forEach(item => {
+                const pointAndDistance = ray.castRay(item);
                 if (pointAndDistance) {
                     const pointOfCollision = pointAndDistance[0];
                     let tmp_distance = pointAndDistance[1];
@@ -67,21 +68,22 @@ class Source {
                     }
                 }
             });
-            if (closestPoint) {
+            if (closestPoint && array[0] instanceof Wall) {
                 this.showRayToPoint(closestPoint);
                 this.collidingPoints++;
             }
+            distances.push(ray.distance);
         });
-        return this.rays;
+        return distances;
     }
 
-    preventColliding(walls) {
+    preventColliding(array) {
         const xOffset = .5;
         const yOffset = .5;
 
         const yWallOffset = .5;
         const xWallOffset = .5;
-        for (let wall of walls) {
+        for (let wall of array) {
             if (wall.p1.x < wall.p2.x) {
                 if (this.position.x >= wall.p1.x && this.position.x <= wall.p2.x) {
                     if (this.position.y >= wall.p1.y && this.position.y <= wall.p1.y + yWallOffset) {

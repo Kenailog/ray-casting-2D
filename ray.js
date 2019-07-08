@@ -9,11 +9,11 @@ class Ray {
         this.direction = p5.Vector.fromAngle(angle);
     }
 
-    castRay(wall) {
-        const x1 = wall.p1.x;
-        const y1 = wall.p1.y;
-        const x2 = wall.p2.x;
-        const y2 = wall.p2.y;
+    castRay(object) {
+        const x1 = object.p1.x;
+        const y1 = object.p1.y;
+        const x2 = object.p2.x;
+        const y2 = object.p2.y;
         const x3 = this.position.x;
         const y3 = this.position.y;
         const x4 = x3 + this.direction.x;

@@ -13,6 +13,8 @@ let customWallPointY2;
 let val = 0.0; // used for random location when loading first walls to scene
 
 let scene3D; // array for rays, used in rendering 3D view
+let enemies3D;
+let sheet;
 let minimapWidth;
 let minimapHeight;
 let sceneWidth;
@@ -30,7 +32,7 @@ let isFiring = false; // used to check firing state for proper displaying frames
 let fireFrameCounter; // controls which frame should be used in a particular draw function (loop) iteration
 
 let enemySpriteSheet; // enemy sprite sheet
-let enemyAnimationToward = []; // holds frames where enemy is oriented toward your position
+let enemyAnimation = []; // holds frames where enemy is oriented front your position
 
 let enemies = []; // array holding enemies
 
@@ -63,13 +65,47 @@ function setup() {
         frame.resize(0, 180);
     })
 
-    enemyAnimationToward.push(enemySpriteSheet.get(0, 0, 40, 60));
-    enemyAnimationToward.push(enemySpriteSheet.get(210, 0, 40, 60));
-    enemyAnimationToward.push(enemySpriteSheet.get(415, 0, 40, 60));
-    enemyAnimationToward.push(enemySpriteSheet.get(110, 60, 40, 60));
-    enemyAnimationToward.push(enemySpriteSheet.get(330, 70, 50, 60));
-    enemyAnimationToward.push(enemySpriteSheet.get(40, 120, 50, 60));
-    enemyAnimationToward.push(enemySpriteSheet.get(290, 130, 40, 60));
+    enemyAnimation.push(enemySpriteSheet.get(0, 0, 43, 60)); // front
+    enemyAnimation.push(enemySpriteSheet.get(40, 0, 50, 60)); // left front
+    enemyAnimation.push(enemySpriteSheet.get(90, 0, 40, 60)); // left
+    enemyAnimation.push(enemySpriteSheet.get(130, 0, 30, 60)); // left back 
+    enemyAnimation.push(enemySpriteSheet.get(170, 0, 40, 60)); // back
+    enemyAnimation.push(enemySpriteSheet.get(210, 0, 43, 60)); // front
+    enemyAnimation.push(enemySpriteSheet.get(260, 0, 40, 60)); // left front
+    enemyAnimation.push(enemySpriteSheet.get(300, 0, 40, 60)); // left
+    enemyAnimation.push(enemySpriteSheet.get(340, 0, 40, 60)); // left back
+    enemyAnimation.push(enemySpriteSheet.get(380, 0, 35, 60)); // back
+    enemyAnimation.push(enemySpriteSheet.get(415, 0, 43, 60)); // front
+    enemyAnimation.push(enemySpriteSheet.get(460, 0, 40, 60));
+    enemyAnimation.push(enemySpriteSheet.get(0, 60, 30, 60));
+    enemyAnimation.push(enemySpriteSheet.get(30, 60, 40, 60));
+    enemyAnimation.push(enemySpriteSheet.get(70, 60, 40, 60));
+    enemyAnimation.push(enemySpriteSheet.get(110, 60, 40, 60)); // front
+    // enemyAnimation.push(enemySpriteSheet.get(155, 60, 45, 60));
+    // enemyAnimation.push(enemySpriteSheet.get(210, 70, 40, 50));
+    // enemyAnimation.push(enemySpriteSheet.get(260, 70, 30, 50));
+    // enemyAnimation.push(enemySpriteSheet.get(290, 60, 35, 50));
+    enemyAnimation.push(enemySpriteSheet.get(330, 70, 50, 60)); // front
+    // enemyAnimation.push(enemySpriteSheet.get(380, 70, 30, 60));
+    // enemyAnimation.push(enemySpriteSheet.get(410, 70, 35, 50));
+    // enemyAnimation.push(enemySpriteSheet.get(455, 70, 35, 50));
+    // enemyAnimation.push(enemySpriteSheet.get(0, 130, 40, 50));
+    enemyAnimation.push(enemySpriteSheet.get(40, 120, 50, 60)); // front
+    // enemyAnimation.push(enemySpriteSheet.get(100, 120, 45, 60));
+    // enemyAnimation.push(enemySpriteSheet.get(150, 130, 50, 50));
+    // enemyAnimation.push(enemySpriteSheet.get(200, 130, 45, 50));
+    // enemyAnimation.push(enemySpriteSheet.get(250, 130, 4535, 50));
+    enemyAnimation.push(enemySpriteSheet.get(290, 130, 40, 60)); // front
+
+    enemyAnimation.push(enemySpriteSheet.get(130, 260, 50, 70)); // death
+    enemyAnimation.push(enemySpriteSheet.get(180, 260, 60, 70));
+    enemyAnimation.push(enemySpriteSheet.get(240, 260, 60, 70));
+    enemyAnimation.push(enemySpriteSheet.get(300, 270, 65, 60));
+    enemyAnimation.push(enemySpriteSheet.get(365, 270, 60, 55));
+    enemyAnimation.push(enemySpriteSheet.get(425, 270, 65, 55));
+    enemyAnimation.push(enemySpriteSheet.get(0, 325, 70, 47));
+    enemyAnimation.push(enemySpriteSheet.get(70, 325, 60, 47));
+
 
     /*
     *  sets frame rate
@@ -113,7 +149,7 @@ function setup() {
         source.setFov(fov);
     });
 
-    raysSlider = createSlider(0, 10000, 240);
+    raysSlider = createSlider(0, 500, 120);
     raysSlider.position(80, minimapHeight + 85);
     raysSlider.input(() => {
         rays = raysSlider.value();
@@ -123,10 +159,10 @@ function setup() {
     /*
     *  loads random rectangles to scene 
     */
-    for (let index = 0; index < 10; index++) {
-        const rect = new Rectangle(noise(val) * minimapWidth, noise(val + .3) * minimapHeight, noise(val - .2) * minimapWidth, noise(val + .5) * minimapHeight);
-        val += .9;
-    }
+    // for (let index = 0; index < 10; index++) {
+    //     const rect = new Rectangle(noise(val) * minimapWidth, noise(val + .3) * minimapHeight, noise(val - .2) * minimapWidth, noise(val + .5) * minimapHeight);
+    //     val += .9;
+    // }
 
     /*
     *  loads walls to each side of scene
@@ -141,7 +177,10 @@ function setup() {
     */
     drawMode = false;
 
-    enemies.push(new Enemy(sceneWidth / 2, sceneHeight / 2, enemyAnimationToward));
+    enemies.push(new Enemy(minimapWidth / 1.5, minimapHeight / 2));
+    enemies[0].setSpritesheet(enemyAnimation);
+
+    // source.lookFor(enemies).forEach(ray => console.log(ray.distance));
 }
 
 /*
@@ -194,22 +233,36 @@ function draw() {
     }
     pop();
 
-
     // 3D view
+    sheet = enemies[0].spritesheet;
+    enemies3D = source.lookFor(enemies);
     scene3D = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
+    // console.log(scene3D);
     rectWidth = sceneWidth / scene3D.length;
     push();
     translate(minimapWidth, 0);
     let i = 0;
     scene3D.forEach(ray => {
-        rectBrightness = (1 / ray.distance ** 2) * source.fov * 1500;
+        rectBrightness = (1 / ray ** 2) * source.fov * 1500;
         rectBrightness = constrain(rectBrightness, 15, 140);
-        rectHeight = (1 / ray.distance) * source.fov * sceneHeight;
+        rectHeight = (1 / ray) * source.fov * sceneHeight;
         noStroke();
         rectMode(CENTER);
         fill(rectBrightness);
         rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight / 2);
     });
+    i = 0;
+    for (let index = 0; index < source.rays.length; index++) {
+        if (scene3D[index] > enemies3D[index]) {
+            push();
+            translate(map(index, 0, source.rays.length, 0, sceneWidth), sceneHeight / 2);
+            imageMode(CENTER);
+            let scaleValue = 100 / enemies3D[index];
+            scale(scaleValue);
+            enemies[0].show(0, 20, sheet);
+            pop();
+        }
+    }
     if (!isFiring) {
         fireFrameCounter = 1;
         image(gunAnimation[0], sceneWidth / 2 - gunAnimation[0].width / 2, sceneHeight - gunAnimation[0].height - 8); // gun
@@ -222,10 +275,7 @@ function draw() {
 
     source.preventColliding(walls);
     walls.forEach(wall => wall.show());
-    enemies.forEach(enemy => {
-        enemy.show();
-        enemy.animate();
-    });
+    enemies.forEach(enemy => enemy.animate());
     source.show();
     if (customWallPointX1 && customWallPointY1) {
         stroke(255);
