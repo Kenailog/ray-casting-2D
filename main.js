@@ -14,7 +14,6 @@ let val = 0.0; // used for random location when loading first walls to scene
 
 let scene3D; // array for rays, used in rendering 3D view
 let enemies3D;
-let sheet;
 let minimapWidth;
 let minimapHeight;
 let sceneWidth;
@@ -234,7 +233,6 @@ function draw() {
     pop();
 
     // 3D view
-    sheet = enemies[0].spritesheet;
     enemies3D = source.lookFor(enemies);
     scene3D = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
     // console.log(scene3D);
@@ -251,15 +249,14 @@ function draw() {
         fill(rectBrightness);
         rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight / 2);
     });
-    i = 0;
     for (let index = 0; index < source.rays.length; index++) {
         if (scene3D[index] > enemies3D[index]) {
             push();
             translate(map(index, 0, source.rays.length, 0, sceneWidth), sceneHeight / 2);
             imageMode(CENTER);
-            let scaleValue = 100 / enemies3D[index];
-            scale(scaleValue);
-            enemies[0].show(0, 20, sheet);
+            // let scaleValue = 100 / enemies3D[index];
+            scale(200 / enemies3D[index]);
+            enemies[0].show(0, map(enemies3D[index], 0, 200, 30, 0));
             pop();
         }
     }
@@ -275,7 +272,11 @@ function draw() {
 
     source.preventColliding(walls);
     walls.forEach(wall => wall.show());
-    enemies.forEach(enemy => enemy.animate());
+    enemies.forEach(enemy => {
+        enemy.animate();
+        enemy.position.x += 2 * cos(frameCount / 20);
+        enemy.showOnMinimap();
+    });
     source.show();
     if (customWallPointX1 && customWallPointY1) {
         stroke(255);

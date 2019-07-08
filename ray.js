@@ -10,27 +10,39 @@ class Ray {
     }
 
     castRay(object) {
-        const x1 = object.p1.x;
-        const y1 = object.p1.y;
-        const x2 = object.p2.x;
-        const y2 = object.p2.y;
         const x3 = this.position.x;
         const y3 = this.position.y;
         const x4 = x3 + this.direction.x;
         const y4 = y3 + this.direction.y;
+        if (object instanceof Wall) {
+            const x1 = object.p1.x;
+            const y1 = object.p1.y;
+            const x2 = object.p2.x;
+            const y2 = object.p2.y;
 
-        const denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+            const denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
 
-        if (denominator == 0) {
-            return;
-        }
+            if (denominator == 0) {
+                return;
+            }
 
-        const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator;
-        const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator; // It's also distance
-        if (t >= 0 && t <= 1 && u >= 0) {
-            return [createVector(x1 + t * (x2 - x1), y1 + t * (y2 - y1)), u]; // returns point and distance
+            const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator;
+            const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator; // It's also distance
+            if (t >= 0 && t <= 1 && u >= 0) {
+                return [createVector(x1 + t * (x2 - x1), y1 + t * (y2 - y1)), u]; // returns point and distance
+            } else {
+                return;
+            }
         } else {
-            return;
+            const rx = object.position.x;
+            const ry = object.position.y;
+            const result = (x4 - x3) * (ry - y3) - (y4 - y3) * (rx - x3);
+            const isPointOnLine = result < .4 && result > -.4;
+            if (isPointOnLine) {
+                return [createVector(rx, ry), this.position.dist(object.position)];
+            } else {
+                return;
+            }
         }
     }
 }
