@@ -1,3 +1,4 @@
+let posDist;
 const size = 14; // font size
 let fovSlider; // change field of view
 let raysSlider; // change number of casted rays
@@ -176,8 +177,8 @@ function setup() {
     */
     drawMode = false;
 
-    enemies.push(new Enemy(minimapWidth / 1.5, minimapHeight / 2));
-    enemies[0].setSpritesheet(enemyAnimation);
+    enemies.push(new Enemy(minimapWidth / 1.5, minimapHeight / 2, enemyAnimation));
+    enemies.push(new Enemy(minimapWidth / 2, minimapHeight / 3, enemyAnimation));
 
     // source.lookFor(enemies).forEach(ray => console.log(ray.distance));
 }
@@ -233,30 +234,55 @@ function draw() {
     pop();
 
     // 3D view
-    enemies3D = source.lookFor(enemies);
     scene3D = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
-    // console.log(scene3D);
+    enemies3D = source.lookFor(enemies);
+    posDist = [];
+    for (distance of enemies3D) {
+        if (distance < Infinity) {
+            posDist.push(distance);
+        }
+    }
+    for (let i = 0; i < enemies.length; i++) {
+        enemies[i].distance = posDist[i] * 2;
+    }
     rectWidth = sceneWidth / scene3D.length;
     push();
     translate(minimapWidth, 0);
-    let i = 0;
-    scene3D.forEach(ray => {
-        rectBrightness = (1 / ray ** 2) * source.fov * 1500;
+    let i = 0; // for rectangles
+    scene3D.forEach(distance => {
+        distance *= 2;
+        rectBrightness = (1 / distance ** 2) * source.fov * 1500;
         rectBrightness = constrain(rectBrightness, 15, 140);
-        rectHeight = (1 / ray) * source.fov * sceneHeight;
+        rectHeight = (1 / distance) * source.fov * sceneHeight;
         noStroke();
         rectMode(CENTER);
         fill(rectBrightness);
-        rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight / 2);
+        rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight);
     });
+    /*
+    *  for different rendering enemies
+    */
+    // let k = 0; // for enemies
+    let show;
     for (let index = 0; index < source.rays.length; index++) {
-        if (scene3D[index] > enemies3D[index]) {
+        if (scene3D[index] > enemies3D[index] && abs(enemies3D[index + 1] - enemies3D[index]) > 0.1) {
             push();
             translate(map(index, 0, source.rays.length, 0, sceneWidth), sceneHeight / 2);
             imageMode(CENTER);
-            // let scaleValue = 100 / enemies3D[index];
-            scale(200 / enemies3D[index]);
-            enemies[0].show(0, map(enemies3D[index], 0, 200, 30, 0));
+            enemies3D[index] *= 2;
+            let scaleValue = ((1 / enemies3D[index]) * source.fov * sceneHeight) / 100;
+            scaleValue = constrain(scaleValue, 1, 13);
+            scale(scaleValue);
+            /*
+            *  for different rendering enemies
+            */
+            // if (enemies.length > k) { // renders only one enemy per point
+            for (enemy of enemies) {
+                if (enemy.distance == enemies3D[index]) {
+                    enemy.show(0, 20);
+                }
+            }
+            // }
             pop();
         }
     }
@@ -274,7 +300,7 @@ function draw() {
     walls.forEach(wall => wall.show());
     enemies.forEach(enemy => {
         enemy.animate();
-        enemy.position.x += 2 * cos(frameCount / 20);
+        enemy.position.x += cos(frameCount / 40);
         enemy.showOnMinimap();
     });
     source.show();

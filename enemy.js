@@ -1,14 +1,20 @@
 class Enemy {
-    constructor(x, y) {
+    constructor(x, y, spritesheet) {
         this.position = createVector(x, y);
-        this.speed = .25;
+        this.speed = .15;
         this.index = 0;
         this.frameCounter = 0;
-        this.spritesheet;
+        this.spritesheet = spritesheet;
+        this.distance = 0;
+
+        this.front = [this.spritesheet[0], this.spritesheet[5], this.spritesheet[10]];
+        this.attack = [this.spritesheet[15], this.spritesheet[20], this.spritesheet[25], this.spritesheet[30]];
+        this.dead = [this.spritesheet[16], this.spritesheet[17], this.spritesheet[18], this.spritesheet[19], this.spritesheet[20], this.spritesheet[21], this.spritesheet[22], this.spritesheet[23], this.spritesheet[24], this.spritesheet[25], this.spritesheet[26]];
     }
 
     show(positionX, positionY) {
-        this.moveTowards(positionX, positionY);
+        // this.moveTowards(positionX, positionY);
+        this.playDeath(positionX, positionY);
     }
 
     animate() {
@@ -16,14 +22,16 @@ class Enemy {
         this.frameCounter += this.speed;
     }
 
-    moveTowards(positionX, positionY) {
-        const front = [this.spritesheet[0], this.spritesheet[5], this.spritesheet[10]];
-        image(front[this.index % front.length], positionX, positionY);
+    playMoveTowards(positionX, positionY) {
+        image(this.front[this.index % this.front.length], positionX, positionY);
     }
 
-    hit() {
-        const attack = [this.spritesheet[15], this.spritesheet[20], this.spritesheet[25], this.spritesheet[30]];
-        image(attack[this.index % attack.length], this.position.x, this.position.y);
+    playHit(positionX, positionY) {
+        image(this.attack[this.index % this.attack.length], positionX, positionY);
+    }
+
+    playDeath(positionX, positionY) {
+        image(this.dead[this.index % this.dead.length], positionX, positionY);
     }
 
     setSpritesheet(spritesheet) {
