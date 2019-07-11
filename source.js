@@ -5,6 +5,7 @@ class Source {
         this.rotation = 0;
         this.velocity = 0;
         this.rays = [];
+        this.enemyRays = [];
         this.fov = 60;
         this.collidingPoints = 0;
         for (let index = -this.fov / 2; index < this.fov / 2; index += .5) {

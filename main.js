@@ -1,4 +1,3 @@
-let posDist;
 const size = 14; // font size
 let fovSlider; // change field of view
 let raysSlider; // change number of casted rays
@@ -14,7 +13,6 @@ let customWallPointY2;
 let val = 0.0; // used for random location when loading first walls to scene
 
 let scene3D; // array for rays, used in rendering 3D view
-let enemies3D;
 let minimapWidth;
 let minimapHeight;
 let sceneWidth;
@@ -46,8 +44,8 @@ function preload() {
 
 function setup() {
     /*
-    *  add frames from sprite sheet to array
-    */
+     *  add frames from sprite sheet to array
+     */
     gunAnimation.push(gunSpriteSheet.get(0, 0, 100, 154));
     gunAnimation.push(gunSpriteSheet.get(100, 0, 80, 154));
     gunAnimation.push(gunSpriteSheet.get(180, 0, 90, 154));
@@ -59,8 +57,8 @@ function setup() {
     gunAnimation.push(gunSpriteSheet.get(807, 0, 926 - 807, 154));
 
     /*
-    *  scales each image in sprite sheet
-    */
+     *  scales each image in sprite sheet
+     */
     gunAnimation.forEach(frame => {
         frame.resize(0, 180);
     })
@@ -108,40 +106,40 @@ function setup() {
 
 
     /*
-    *  sets frame rate
-    */
+     *  sets frame rate
+     */
     frameRate(60);
 
     /*
-    *  sets scene size
-    */
+     *  sets scene size
+     */
     sceneWidth = windowWidth * .85;
     sceneHeight = windowHeight;
 
     /*
-    *  sets minimap size
-    */
+     *  sets minimap size
+     */
     minimapWidth = sceneWidth * .2;
     minimapHeight = sceneHeight * .3;
 
     /*
-    *  creates canvas with given values
-    */
+     *  creates canvas with given values
+     */
     createCanvas(displayWidth - 10, displayHeight - 150);
 
     /*
-    *  sets size of text
-    */
+     *  sets size of text
+     */
     textSize(size);
 
     /*
-    *  creates instance of source object and assings it to variable
-    */
+     *  creates instance of source object and assings it to variable
+     */
     source = new Source(10, 10, minimapWidth / 2, minimapHeight / 2);
 
     /*
-    *  creates sliders for fov and rays at position
-    */
+     *  creates sliders for fov and rays at position
+     */
     fovSlider = createSlider(0, 360, 60);
     fovSlider.position(80, minimapHeight + 55);
     fovSlider.input(() => {
@@ -157,35 +155,33 @@ function setup() {
     });
 
     /*
-    *  loads random rectangles to scene 
-    */
+     *  loads random rectangles to scene 
+     */
     // for (let index = 0; index < 10; index++) {
     //     const rect = new Rectangle(noise(val) * minimapWidth, noise(val + .3) * minimapHeight, noise(val - .2) * minimapWidth, noise(val + .5) * minimapHeight);
     //     val += .9;
     // }
 
     /*
-    *  loads walls to each side of scene
-    */
+     *  loads walls to each side of scene
+     */
     walls.push(new Wall(0, 0, minimapWidth, 0));
     walls.push(new Wall(0, minimapHeight, minimapWidth, minimapHeight));
     walls.push(new Wall(0, 0, 0, minimapHeight));
     walls.push(new Wall(minimapWidth, 0, minimapWidth, minimapHeight));
 
     /*
-    *  sets draw mode to off
-    */
+     *  sets draw mode to off
+     */
     drawMode = false;
 
     enemies.push(new Enemy(minimapWidth / 1.5, minimapHeight / 2, enemyAnimation));
     enemies.push(new Enemy(minimapWidth / 2, minimapHeight / 3, enemyAnimation));
-
-    // source.lookFor(enemies).forEach(ray => console.log(ray.distance));
 }
 
 /*
-*  main loop
-*/
+ *  main loop
+ */
 function draw() {
     if (keyIsDown(LEFT_ARROW)) {
         source.rotate(-.05);
@@ -200,100 +196,19 @@ function draw() {
 
     background(0);
 
-    push();
-    translate(0, minimapHeight);
-    text('mouse click -> mouse click to draw', 10, 5 + size);
-    text('use arrows to move', 10, 30 + size);
-    text('ctrl to toogle draw mode: '.concat(drawMode ? "on" : "off"), 10, 115 + size);
-    text('fov: ' + source.fov, 10, 55 + size);
-    text('rays: ' + source.rays.length, 10, 85 + size);
-    text('points of collision: ' + source.collidingPoints, 10, 145 + size);
-    text('FPS: ' + round(frameRate()), 10, 175 + size);
-    pop();
+    showTextInfo();
 
     // sky
-    push();
-    translate(minimapWidth, 0);
-    for (let index = 0; index < numberOfRectInFloor; index++) {
-        noStroke();
-        // fill(sqrt(index) * 15, sqrt(index) * 15, 0);
-        fill(255, 255, 0, index * 2);
-        rect(0, 5 * index, sceneWidth, 5);
-    }
-    pop();
+    showSky();
 
     // floor
-    numberOfRectInFloor = (height / 2) / 5;
-    push();
-    translate(minimapWidth, height / 2);
-    for (let index = 0; index < numberOfRectInFloor; index++) {
-        noStroke();
-        fill(index - 10);
-        rect(0, 10 + 5 * index, sceneWidth, 5);
-    }
-    pop();
+    showFloor();
 
     // 3D view
-    scene3D = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
-    enemies3D = source.lookFor(enemies);
-    posDist = [];
-    for (distance of enemies3D) {
-        if (distance < Infinity) {
-            posDist.push(distance);
-        }
-    }
-    for (let i = 0; i < enemies.length; i++) {
-        enemies[i].distance = posDist[i] * 2;
-    }
-    rectWidth = sceneWidth / scene3D.length;
     push();
-    translate(minimapWidth, 0);
-    let i = 0; // for rectangles
-    scene3D.forEach(distance => {
-        distance *= 2;
-        rectBrightness = (1 / distance ** 2) * source.fov * 1500;
-        rectBrightness = constrain(rectBrightness, 15, 140);
-        rectHeight = (1 / distance) * source.fov * sceneHeight;
-        noStroke();
-        rectMode(CENTER);
-        fill(rectBrightness);
-        rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight);
-    });
-    /*
-    *  for different rendering enemies
-    */
-    // let k = 0; // for enemies
-    let show;
-    for (let index = 0; index < source.rays.length; index++) {
-        if (scene3D[index] > enemies3D[index] && abs(enemies3D[index + 1] - enemies3D[index]) > 0.1) {
-            push();
-            translate(map(index, 0, source.rays.length, 0, sceneWidth), sceneHeight / 2);
-            imageMode(CENTER);
-            enemies3D[index] *= 2;
-            let scaleValue = ((1 / enemies3D[index]) * source.fov * sceneHeight) / 100;
-            scaleValue = constrain(scaleValue, 1, 13);
-            scale(scaleValue);
-            /*
-            *  for different rendering enemies
-            */
-            // if (enemies.length > k) { // renders only one enemy per point
-            for (enemy of enemies) {
-                if (enemy.distance == enemies3D[index]) {
-                    enemy.show(0, 20);
-                }
-            }
-            // }
-            pop();
-        }
-    }
-    if (!isFiring) {
-        fireFrameCounter = 1;
-        image(gunAnimation[0], sceneWidth / 2 - gunAnimation[0].width / 2, sceneHeight - gunAnimation[0].height - 8); // gun
-    } else {
-        let index = Number.isInteger(fireFrameCounter) ? fireFrameCounter : floor(fireFrameCounter);
-        image(gunAnimation[index], sceneWidth / 2 - gunAnimation[index].width / 2, sceneHeight - gunAnimation[index].height - 8);
-        fireFrameCounter >= gunAnimation.length - 1 ? isFiring = false : fireFrameCounter += .2;
-    }
+    showWalls();
+    showEnemies();
+    showWeapon();
     pop();
 
     source.preventColliding(walls);
@@ -304,6 +219,7 @@ function draw() {
         enemy.showOnMinimap();
     });
     source.show();
+
     if (customWallPointX1 && customWallPointY1) {
         stroke(255);
         strokeWeight(lineStrokeWeight + 4);
@@ -348,4 +264,89 @@ function keyPressed() {
             }
             break;
     }
+}
+
+function showWalls() {
+    scene3D = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
+    rectWidth = sceneWidth / scene3D.length;
+    translate(minimapWidth, 0);
+    let i = 0; // for rectangles
+    scene3D.forEach(distance => {
+        distance *= 2;
+        rectBrightness = (1 / distance ** 2) * source.fov * 1500;
+        rectBrightness = constrain(rectBrightness, 15, 140);
+        rectHeight = (1 / distance) * source.fov * sceneHeight;
+        noStroke();
+        rectMode(CENTER);
+        fill(rectBrightness);
+        rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight);
+    });
+}
+
+function showEnemies() {
+    for (let index = 0; index < source.rays.length; index++) {
+        if (scene3D[index] > enemies3D[index] && abs(enemies3D[index + 1] - enemies3D[index]) > 0.1) {
+            push();
+            translate(map(index, 0, source.rays.length, 0, sceneWidth), sceneHeight / 2);
+            imageMode(CENTER);
+            enemies3D[index] *= 2;
+            let scaleValue = ((1 / enemies3D[index]) * source.fov * sceneHeight) / 100;
+            scaleValue = constrain(scaleValue, 1, 13);
+            scale(scaleValue);
+            for (enemy of enemies) {
+                if (enemy.distance == enemies3D[index]) {
+                    enemy.show(0, 20);
+                }
+            }
+            pop();
+        }
+    }
+}
+
+function showWeapon() {
+    if (!isFiring) {
+        fireFrameCounter = 1;
+        image(gunAnimation[0], sceneWidth / 2 - gunAnimation[0].width / 2, sceneHeight - gunAnimation[0].height - 8); // gun
+    } else {
+        let index = Number.isInteger(fireFrameCounter) ? fireFrameCounter : floor(fireFrameCounter);
+        image(gunAnimation[index], sceneWidth / 2 - gunAnimation[index].width / 2, sceneHeight - gunAnimation[index].height - 8);
+        fireFrameCounter >= gunAnimation.length - 1 ? isFiring = false : fireFrameCounter += .2;
+    }
+}
+
+function showFloor() {
+    numberOfRectInFloor = (height / 2) / 5;
+    push();
+    translate(minimapWidth, height / 2);
+    for (let index = 0; index < numberOfRectInFloor; index++) {
+        noStroke();
+        fill(index - 10);
+        rect(0, 10 + 5 * index, sceneWidth, 5);
+    }
+    pop();
+}
+
+function showSky() {
+    push();
+    translate(minimapWidth, 0);
+    for (let index = 0; index < numberOfRectInFloor; index++) {
+        noStroke();
+        // fill(sqrt(index) * 15, sqrt(index) * 15, 0);
+        fill(255, 255, 0, index * 2);
+        rect(0, 5 * index, sceneWidth, 5);
+    }
+    pop();
+}
+
+function showTextInfo() {
+    push();
+    translate(0, minimapHeight);
+    text('mouse click -> mouse click to draw', 10, 5 + size);
+    text('use arrows to move', 10, 30 + size);
+    text('ctrl to toogle draw mode: '.concat(drawMode ? "on" : "off"), 10, 115 + size);
+    text('fov: ' + source.fov, 10, 55 + size);
+    text('rays: ' + source.rays.length, 10, 85 + size);
+    text('points of collision: ' + source.collidingPoints, 10, 145 + size);
+    text('FPS: ' + round(frameRate()), 10, 175 + size);
+    pop();
 }
