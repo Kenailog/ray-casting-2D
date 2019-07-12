@@ -5,13 +5,44 @@ class Source {
         this.rotation = 0;
         this.velocity = 0;
         this.rays = [];
-        this.enemyRays = [];
+        this.spritesRays = [];
         this.fov = 60;
         this.collidingPoints = 0;
         for (let index = -this.fov / 2; index < this.fov / 2; index += .5) {
             this.rays.push(new Ray(this.position, radians(index)));
         }
         this.factor = this.fov / this.rays.length;
+    }
+
+    updateSpritesPosition(array) {
+        this.spritesRays = [];
+        for (let index = 0; index < array.length; index++) {
+            this.spritesRays.push(new Ray(this.position, array[index].position.heading()));
+            this.spritesRays[index].endPoint = array[index].position;
+        }
+    }
+
+    getDistancesToSprites() {
+        let distances = [];
+        this.spritesRays.forEach(ray => distances.push(this.position.dist(ray.endPoint) * cos(ray.direction.heading() - this.rotation)));
+        return distances;
+    }
+
+    getAngleToSprite(sprite) {
+        let index;
+        for (let i = 0; i < this.spritesRays.length; i++) {
+            if (this.spritesRays[i].endPoint == sprite.position) {
+                index = i;
+                break;
+            }
+        }
+        // return this.rays[0].direction.angleBetween(this.spritesRays[index].direction);
+        return this.rays[0].direction.heading() - this.spritesRays[index].direction.heading();
+    }
+
+    isVisible(sprite) {
+        const angle = this.getAngleToSprite(sprite);
+        return angle <= 0; // && angle < radians(this.fov);
     }
 
     setFov(fov) {
@@ -69,10 +100,8 @@ class Source {
                     }
                 }
             });
-            if (closestPoint && array[0] instanceof Wall) {
-                this.showRayToPoint(closestPoint);
-                this.collidingPoints++;
-            }
+            this.showRayToPoint(closestPoint);
+            this.collidingPoints++;
             distances.push(ray.distance);
         });
         return distances;
@@ -82,39 +111,39 @@ class Source {
         const xOffset = .5;
         const yOffset = .5;
 
-        const yWallOffset = .5;
-        const xWallOffset = .5;
-        for (let wall of array) {
-            if (wall.p1.x < wall.p2.x) {
-                if (this.position.x >= wall.p1.x && this.position.x <= wall.p2.x) {
-                    if (this.position.y >= wall.p1.y && this.position.y <= wall.p1.y + yWallOffset) {
+        const yElementOffset = .5;
+        const xElementOffset = .5;
+        for (let element of array) {
+            if (element.p1.x < element.p2.x) {
+                if (this.position.x >= element.p1.x && this.position.x <= element.p2.x) {
+                    if (this.position.y >= element.p1.y && this.position.y <= element.p1.y + yElementOffset) {
                         this.position.y += yOffset;
-                    } else if (this.position.y <= wall.p1.y && this.position.y >= wall.p1.y - yWallOffset) {
+                    } else if (this.position.y <= element.p1.y && this.position.y >= element.p1.y - yElementOffset) {
                         this.position.y -= yOffset;
                     }
                 }
-            } else if (wall.p1.x > wall.p2.x) {
-                if (this.position.x <= wall.p1.x && this.position.x >= wall.p2.x) {
-                    if (this.position.y >= wall.p1.y && this.position.y <= wall.p1.y + yWallOffset) {
+            } else if (element.p1.x > element.p2.x) {
+                if (this.position.x <= element.p1.x && this.position.x >= element.p2.x) {
+                    if (this.position.y >= element.p1.y && this.position.y <= element.p1.y + yElementOffset) {
                         this.position.y += yOffset;
-                    } else if (this.position.y <= wall.p1.y && this.position.y >= wall.p1.y - yWallOffset) {
+                    } else if (this.position.y <= element.p1.y && this.position.y >= element.p1.y - yElementOffset) {
                         this.position.y -= yOffset;
                     }
                 }
             }
-            if (wall.p1.y < wall.p2.y) {
-                if (this.position.y >= wall.p1.y && this.position.y <= wall.p2.y) {
-                    if (this.position.x >= wall.p1.x && this.position.x <= wall.p1.x + xWallOffset) {
+            if (element.p1.y < element.p2.y) {
+                if (this.position.y >= element.p1.y && this.position.y <= element.p2.y) {
+                    if (this.position.x >= element.p1.x && this.position.x <= element.p1.x + xElementOffset) {
                         this.position.x += xOffset;
-                    } else if (this.position.x <= wall.p1.x && this.position.x >= wall.p1.x - xWallOffset) {
+                    } else if (this.position.x <= element.p1.x && this.position.x >= element.p1.x - xElementOffset) {
                         this.position.x -= xOffset;
                     }
                 }
-            } else if (wall.p1.y > wall.p2.y) {
-                if (this.position.y <= wall.p1.y && this.position.y >= wall.p2.y) {
-                    if (this.position.x >= wall.p1.x && this.position.x <= wall.p1.x + xWallOffset) {
+            } else if (element.p1.y > element.p2.y) {
+                if (this.position.y <= element.p1.y && this.position.y >= element.p2.y) {
+                    if (this.position.x >= element.p1.x && this.position.x <= element.p1.x + xElementOffset) {
                         this.position.x += xOffset;
-                    } else if (this.position.x <= wall.p1.x && this.position.x >= wall.p1.x - xWallOffset) {
+                    } else if (this.position.x <= element.p1.x && this.position.x >= element.p1.x - xElementOffset) {
                         this.position.x -= xOffset;
                     }
                 }
