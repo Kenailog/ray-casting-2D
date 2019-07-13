@@ -156,11 +156,14 @@ function setup() {
     });
 
     /*
-     *  loads random rectangles to scene 
+     *  loads default rectangles to scene 
      */
-    // for (let index = 0; index < 10; index++) {
-    //     const rect = new Rectangle(noise(val) * minimapWidth, noise(val + .3) * minimapHeight, noise(val - .2) * minimapWidth, noise(val + .5) * minimapHeight);
-    //     val += .9;
+    // for (let index = 0; index < 5; index++) {
+    let rect = new Rectangle(0, 0, minimapWidth / 3, minimapHeight / 3);
+    rect = new Rectangle(0, minimapHeight - 30, minimapWidth / 4, minimapHeight / 3 + 70);
+    rect = new Rectangle(minimapWidth / 2, 0, minimapWidth / 1.5, minimapHeight / 3);
+    rect = new Rectangle(minimapWidth / 1.4, minimapHeight / 1.5, minimapWidth, minimapHeight);
+    // val += .9;
     // }
 
     /*
@@ -232,8 +235,13 @@ function draw() {
     // line(p5.Vector.fromAngle(source.rays[59].direction.heading()).x * 100, p5.Vector.fromAngle(source.rays[59].direction.heading()).y * 100, source.position.x, source.position.y);
     // strokeWeight(0);
 
-    // enemies[0].position.add(createVector(0, cos(frameCount / 40)));
-    // enemies[1].position.add(createVector(cos(frameCount / 40)), 0);
+    if (enemies[0].distance < enemies[1].distance) {
+        enemies[0].position.add(createVector(0, cos(frameCount / 40) / .9));
+        enemies[1].position.add(createVector(cos(frameCount / 40)) / .9, 0);
+    } else {
+        enemies[1].position.add(createVector(0, cos(frameCount / 40) / .9));
+        enemies[0].position.add(createVector(cos(frameCount / 40)) / .9, 0);
+    }
 
     source.show();
 
@@ -294,7 +302,7 @@ function showWalls() {
         distance *= 2;
         // rectBrightness = (1 / distance ** 2) * source.fov * 1500;
         // rectBrightness = constrain(rectBrightness, 15, 140);
-        rectBrightness = map(distance, 0, max(scene3D) * 2, 200, 30);
+        rectBrightness = map(distance, min(scene3D) * 2, max(scene3D) * 2, 180, 50);
         rectHeight = (1 / distance) * source.fov * sceneHeight;
         noStroke();
         rectMode(CENTER);
@@ -327,7 +335,7 @@ function showEnemies() {
             let scaleValue = ((1 / spritesDistances[spritesDistancesIndex]) * source.fov * sceneHeight) / 100;
             scaleValue = constrain(scaleValue, 1, 13);
             scale(scaleValue);
-            enemy.show(0, 20);
+            enemy.show(0, 25);
         }
         spritesDistancesIndex++;
         pop();
@@ -379,7 +387,7 @@ function showTextInfo() {
     text('rays: ' + source.rays.length, 10, 85 + size);
     text('points of collision: ' + source.collidingPoints, 10, 145 + size);
     text('FPS: ' + round(frameRate()), 10, 175 + size);
-    text('angle: ' + round(degrees(source.getAngleToSprite(enemies[0]))), 10, 200 + size);
-    text('distance: ' + round(spritesDistances[0]), 10, 230 + size);
+    text('angle: sp1 ' + round(degrees(source.getAngleToSprite(enemies[0]))) + ' sp2 ' + round(degrees(source.getAngleToSprite(enemies[1]))), 10, 200 + size);
+    text('distance: sp1 ' + round(spritesDistances[0]) + ' sp2 ' + round(spritesDistances[1]), 10, 220 + size);
     pop();
 }
