@@ -232,12 +232,14 @@ function draw() {
     enemies.forEach(enemy => {
         enemy.animate();
         strokeWeight(1);
-        line(source.rays[source.rays.length - 1].position.x, source.rays[source.rays.length - 1].position.y, enemy.position.x, enemy.position.y);
+        if (source.canSee(enemy, walls)) {
+            line(source.rays[source.rays.length - 1].position.x, source.rays[source.rays.length - 1].position.y, enemy.position.x, enemy.position.y);
+        }
         strokeWeight(0);
         enemy.showOnMinimap();
     });
 
-    enemies.forEach(enemy => enemy.position.add(createVector(cos(noise(sceneWidth) * frameCount / 5), cos(noise(sceneHeight) * frameCount / 5))));
+    enemies.forEach(enemy => enemy.position.add(createVector(cos(noise(sceneWidth) * frameCount / 2), cos(noise(sceneHeight) * frameCount / 2))));
     // if (enemies[0].distance < enemies[1].distance) {
     //     enemies[0].position.add(createVector(0, cos(40) / .9));
     //     enemies[1].position.add(createVector(cos(40)) / .9, 0);
@@ -390,17 +392,24 @@ function showTextInfo() {
     text('rays: ' + source.rays.length, 10, 85 + size);
     text('points of collision: ' + source.collidingPoints, 10, 145 + size);
     text('FPS: ' + round(frameRate()), 10, 175 + size);
-    text('angle: sp1 ' + round(degrees(source.getAngleToSprite(enemies[0]))) + ' sp2 ' + round(degrees(source.getAngleToSprite(enemies[1]))), 10, 200 + size);
-    text('distance: sp1 ' + round(spritesDistances[0]) + ' sp2 ' + round(spritesDistances[1]), 10, 220 + size);
+    let index = 1;
+    val = 220;
+    text('distances ', 10, 200 + size);
+    enemies.forEach(enemy => {
+        text('sp ' + index + ' ' + round(spritesDistances[index++ - 1]), 10, val + size);
+        text(round(degrees(source.getAngleToSprite(enemy))), 100, val + size);
+        val += 20;
+    });
+    text('angles ', 100, 200 + size);
     pop();
 }
 
 function preventColliding(object, obstacles) {
-    const xOffset = .5;
-    const yOffset = .5;
+    const xOffset = 2;
+    const yOffset = 2;
 
-    const yElementOffset = .5;
-    const xElementOffset = .5;
+    const yElementOffset = 2;
+    const xElementOffset = 2;
     for (let element of obstacles) {
         if (element.p1.x < element.p2.x) {
             if (object.position.x >= element.p1.x && object.position.x <= element.p2.x) {
