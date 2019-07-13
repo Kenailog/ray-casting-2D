@@ -45,7 +45,7 @@ class Source {
         const index = this.getSpriteRayIndex(sprite);
         const angle = atan2(this.rays[this.rays.length - 1].endPoint.y - this.position.y,
             this.rays[this.rays.length - 1].endPoint.x - this.position.x) - atan2(this.spritesRays[index].endPoint.y - this.position.y,
-                this.spritesRays[index].endPoint.x - this.position.x);
+            this.spritesRays[index].endPoint.x - this.position.x);
         return angle < 0 ? angle + radians(360) : angle;
     }
 
@@ -113,55 +113,11 @@ class Source {
                     }
                 }
             });
-            this.showRayToPoint(closestPoint);
+            ray.endPoint = closestPoint;
             this.collidingPoints++;
             distances.push(ray.distance);
         });
         return distances;
-    }
-
-    preventColliding(array) {
-        const xOffset = .5;
-        const yOffset = .5;
-
-        const yElementOffset = .5;
-        const xElementOffset = .5;
-        for (let element of array) {
-            if (element.p1.x < element.p2.x) {
-                if (this.position.x >= element.p1.x && this.position.x <= element.p2.x) {
-                    if (this.position.y >= element.p1.y && this.position.y <= element.p1.y + yElementOffset) {
-                        this.position.y += yOffset;
-                    } else if (this.position.y <= element.p1.y && this.position.y >= element.p1.y - yElementOffset) {
-                        this.position.y -= yOffset;
-                    }
-                }
-            } else if (element.p1.x > element.p2.x) {
-                if (this.position.x <= element.p1.x && this.position.x >= element.p2.x) {
-                    if (this.position.y >= element.p1.y && this.position.y <= element.p1.y + yElementOffset) {
-                        this.position.y += yOffset;
-                    } else if (this.position.y <= element.p1.y && this.position.y >= element.p1.y - yElementOffset) {
-                        this.position.y -= yOffset;
-                    }
-                }
-            }
-            if (element.p1.y < element.p2.y) {
-                if (this.position.y >= element.p1.y && this.position.y <= element.p2.y) {
-                    if (this.position.x >= element.p1.x && this.position.x <= element.p1.x + xElementOffset) {
-                        this.position.x += xOffset;
-                    } else if (this.position.x <= element.p1.x && this.position.x >= element.p1.x - xElementOffset) {
-                        this.position.x -= xOffset;
-                    }
-                }
-            } else if (element.p1.y > element.p2.y) {
-                if (this.position.y <= element.p1.y && this.position.y >= element.p2.y) {
-                    if (this.position.x >= element.p1.x && this.position.x <= element.p1.x + xElementOffset) {
-                        this.position.x += xOffset;
-                    } else if (this.position.x <= element.p1.x && this.position.x >= element.p1.x - xElementOffset) {
-                        this.position.x -= xOffset;
-                    }
-                }
-            }
-        }
     }
 
     showRayToPoint(point) {

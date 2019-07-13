@@ -114,7 +114,7 @@ function setup() {
     /*
      *  sets scene size
      */
-    sceneWidth = windowWidth * .85;
+    sceneWidth = windowWidth;
     sceneHeight = windowHeight;
 
     /*
@@ -179,8 +179,9 @@ function setup() {
      */
     drawMode = false;
 
-    enemies.push(new Enemy(minimapWidth / 1.5, minimapHeight / 2, enemyAnimation));
-    enemies.push(new Enemy(minimapWidth / 2, minimapHeight / 3, enemyAnimation));
+    for (let index = 0; index < 10; index++) {
+        enemies.push(new Enemy(random(minimapWidth), random(minimapHeight), enemyAnimation));
+    }
 }
 
 /*
@@ -220,7 +221,13 @@ function draw() {
     showWeapon();
     pop();
 
-    source.preventColliding(walls);
+    enemies.forEach(enemy => preventColliding(enemy, walls));
+    preventColliding(source, walls);
+    source.rays.forEach(ray => source.showRayToPoint(ray.endPoint));
+
+    fill(0, 70);
+    rect(0, 0, minimapWidth, sceneHeight);
+
     walls.forEach(wall => wall.show());
     enemies.forEach(enemy => {
         enemy.animate();
@@ -230,18 +237,14 @@ function draw() {
         enemy.showOnMinimap();
     });
 
-    // strokeWeight(1);
-    // line(p5.Vector.fromAngle(source.spritesRays[0].endPoint.heading()).x * 100, p5.Vector.fromAngle(source.spritesRays[0].endPoint.heading()).y * 100, source.position.x, source.position.y);
-    // line(p5.Vector.fromAngle(source.rays[59].direction.heading()).x * 100, p5.Vector.fromAngle(source.rays[59].direction.heading()).y * 100, source.position.x, source.position.y);
-    // strokeWeight(0);
-
-    if (enemies[0].distance < enemies[1].distance) {
-        enemies[0].position.add(createVector(0, cos(frameCount / 40) / .9));
-        enemies[1].position.add(createVector(cos(frameCount / 40)) / .9, 0);
-    } else {
-        enemies[1].position.add(createVector(0, cos(frameCount / 40) / .9));
-        enemies[0].position.add(createVector(cos(frameCount / 40)) / .9, 0);
-    }
+    enemies.forEach(enemy => enemy.position.add(createVector(cos(noise(sceneWidth) * frameCount / 5), cos(noise(sceneHeight) * frameCount / 5))));
+    // if (enemies[0].distance < enemies[1].distance) {
+    //     enemies[0].position.add(createVector(0, cos(40) / .9));
+    //     enemies[1].position.add(createVector(cos(40)) / .9, 0);
+    // } else {
+    //     enemies[1].position.add(createVector(0, cos(40) / .9));
+    //     enemies[0].position.add(createVector(cos(40)) / .9, 0);
+    // }
 
     source.show();
 
@@ -296,7 +299,7 @@ function keyPressed() {
 function showWalls() {
     scene3D = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
     rectWidth = sceneWidth / scene3D.length;
-    translate(minimapWidth, 0);
+    translate(0, 0);
     let i = 0; // for rectangles
     scene3D.forEach(distance => {
         distance *= 2;
@@ -356,7 +359,7 @@ function showWeapon() {
 function showFloor() {
     numberOfRectInFloor = (height / 2) / 5;
     push();
-    translate(minimapWidth, height / 2);
+    translate(0, height / 2);
     for (let index = 0; index < numberOfRectInFloor; index++) {
         noStroke();
         fill(index - 10);
@@ -367,7 +370,7 @@ function showFloor() {
 
 function showSky() {
     push();
-    translate(minimapWidth, 0);
+    translate(0, 0);
     for (let index = 0; index < numberOfRectInFloor; index++) {
         noStroke();
         // fill(sqrt(index) * 15, sqrt(index) * 15, 0);
@@ -390,4 +393,48 @@ function showTextInfo() {
     text('angle: sp1 ' + round(degrees(source.getAngleToSprite(enemies[0]))) + ' sp2 ' + round(degrees(source.getAngleToSprite(enemies[1]))), 10, 200 + size);
     text('distance: sp1 ' + round(spritesDistances[0]) + ' sp2 ' + round(spritesDistances[1]), 10, 220 + size);
     pop();
+}
+
+function preventColliding(object, obstacles) {
+    const xOffset = .5;
+    const yOffset = .5;
+
+    const yElementOffset = .5;
+    const xElementOffset = .5;
+    for (let element of obstacles) {
+        if (element.p1.x < element.p2.x) {
+            if (object.position.x >= element.p1.x && object.position.x <= element.p2.x) {
+                if (object.position.y >= element.p1.y && object.position.y <= element.p1.y + yElementOffset) {
+                    object.position.y += yOffset;
+                } else if (object.position.y <= element.p1.y && object.position.y >= element.p1.y - yElementOffset) {
+                    object.position.y -= yOffset;
+                }
+            }
+        } else if (element.p1.x > element.p2.x) {
+            if (object.position.x <= element.p1.x && object.position.x >= element.p2.x) {
+                if (object.position.y >= element.p1.y && object.position.y <= element.p1.y + yElementOffset) {
+                    object.position.y += yOffset;
+                } else if (object.position.y <= element.p1.y && object.position.y >= element.p1.y - yElementOffset) {
+                    object.position.y -= yOffset;
+                }
+            }
+        }
+        if (element.p1.y < element.p2.y) {
+            if (object.position.y >= element.p1.y && object.position.y <= element.p2.y) {
+                if (object.position.x >= element.p1.x && object.position.x <= element.p1.x + xElementOffset) {
+                    object.position.x += xOffset;
+                } else if (object.position.x <= element.p1.x && object.position.x >= element.p1.x - xElementOffset) {
+                    object.position.x -= xOffset;
+                }
+            }
+        } else if (element.p1.y > element.p2.y) {
+            if (object.position.y <= element.p1.y && object.position.y >= element.p2.y) {
+                if (object.position.x >= element.p1.x && object.position.x <= element.p1.x + xElementOffset) {
+                    object.position.x += xOffset;
+                } else if (object.position.x <= element.p1.x && object.position.x >= element.p1.x - xElementOffset) {
+                    object.position.x -= xOffset;
+                }
+            }
+        }
+    }
 }
