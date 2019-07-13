@@ -5,7 +5,7 @@ class Enemy {
         this.index = 0;
         this.frameCounter = 0;
         this.spritesheet = spritesheet;
-        this.distance = 0;
+        this.distance;
 
         this.front = [this.spritesheet[0], this.spritesheet[5], this.spritesheet[10]];
         this.attack = [this.spritesheet[15], this.spritesheet[20], this.spritesheet[25], this.spritesheet[30]];
@@ -13,8 +13,8 @@ class Enemy {
     }
 
     show(positionX, positionY) {
-        // this.moveTowards(positionX, positionY);
-        this.playDeath(positionX, positionY);
+        this.playMoveTowards(positionX, positionY);
+        // this.playDeath(positionX, positionY);
     }
 
     animate() {

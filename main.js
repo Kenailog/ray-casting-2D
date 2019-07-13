@@ -177,7 +177,7 @@ function setup() {
     drawMode = false;
 
     enemies.push(new Enemy(minimapWidth / 1.5, minimapHeight / 2, enemyAnimation));
-    // enemies.push(new Enemy(minimapWidth / 2, minimapHeight / 3, enemyAnimation));
+    enemies.push(new Enemy(minimapWidth / 2, minimapHeight / 3, enemyAnimation));
 }
 
 /*
@@ -205,6 +205,11 @@ function draw() {
 
     source.updateSpritesPosition(enemies);
     spritesDistances = source.getDistancesToSprites();
+
+    assignDistancesToSprites();
+    sortSpritesDistancesDesc();
+    sortSpritesByDistance();
+
     // 3D view
     push();
     showWalls();
@@ -216,14 +221,22 @@ function draw() {
     walls.forEach(wall => wall.show());
     enemies.forEach(enemy => {
         enemy.animate();
-        enemy.position.x += cos(frameCount / 40);
+        strokeWeight(1);
+        line(source.rays[source.rays.length - 1].position.x, source.rays[source.rays.length - 1].position.y, enemy.position.x, enemy.position.y);
+        strokeWeight(0);
         enemy.showOnMinimap();
     });
+
+    // strokeWeight(1);
+    // line(p5.Vector.fromAngle(source.spritesRays[0].endPoint.heading()).x * 100, p5.Vector.fromAngle(source.spritesRays[0].endPoint.heading()).y * 100, source.position.x, source.position.y);
+    // line(p5.Vector.fromAngle(source.rays[59].direction.heading()).x * 100, p5.Vector.fromAngle(source.rays[59].direction.heading()).y * 100, source.position.x, source.position.y);
+    // strokeWeight(0);
+
+    // enemies[0].position.add(createVector(0, cos(frameCount / 40)));
+    // enemies[1].position.add(createVector(cos(frameCount / 40)), 0);
+
     source.show();
 
-    strokeWeight(4);
-    line(source.spritesRays[0].position.x, source.spritesRays[0].position.y, source.spritesRays[0].endPoint.x, source.spritesRays[0].endPoint.y);
-    strokeWeight(0);
     showTextInfo();
 
     if (customWallPointX1 && customWallPointY1) {
@@ -279,8 +292,9 @@ function showWalls() {
     let i = 0; // for rectangles
     scene3D.forEach(distance => {
         distance *= 2;
-        rectBrightness = (1 / distance ** 2) * source.fov * 1500;
-        rectBrightness = constrain(rectBrightness, 15, 140);
+        // rectBrightness = (1 / distance ** 2) * source.fov * 1500;
+        // rectBrightness = constrain(rectBrightness, 15, 140);
+        rectBrightness = map(distance, 0, max(scene3D) * 2, 200, 30);
         rectHeight = (1 / distance) * source.fov * sceneHeight;
         noStroke();
         rectMode(CENTER);
@@ -289,20 +303,35 @@ function showWalls() {
     });
 }
 
+function sortSpritesDistancesDesc() {
+    spritesDistances.sort((el1, el2) => el2 - el1);
+}
+
+function assignDistancesToSprites() {
+    let index = 0;
+    enemies.forEach(enemy => enemy.distance = spritesDistances[index++]);
+}
+
+function sortSpritesByDistance() {
+    enemies.sort((el1, el2) => el2.distance - el1.distance);
+}
+
 function showEnemies() {
-    for (let index = 0; index < enemies.length; index++) {
+    let spritesDistancesIndex = 0;
+    enemies.forEach(enemy => {
+        spritesDistances[spritesDistancesIndex] *= 2;
         push();
-        if (source.isVisible(enemies[index])) {
-            translate(map(abs(source.getAngleToSprite(enemies[index])), radians(0), radians(source.fov), 0, sceneWidth), sceneHeight / 2);
+        if (source.canSee(enemy, walls)) {
+            translate(map(source.getAngleToSprite(enemy), radians(0), radians(source.fov), sceneWidth, 0), sceneHeight / 2);
             imageMode(CENTER);
-            spritesDistances[index] *= 2;
-            let scaleValue = ((1 / spritesDistances[index]) * source.fov * sceneHeight) / 100;
+            let scaleValue = ((1 / spritesDistances[spritesDistancesIndex]) * source.fov * sceneHeight) / 100;
             scaleValue = constrain(scaleValue, 1, 13);
             scale(scaleValue);
-            enemies[index].show(0, 20);
+            enemy.show(0, 20);
         }
+        spritesDistancesIndex++;
         pop();
-    }
+    });
 }
 
 function showWeapon() {
@@ -351,5 +380,6 @@ function showTextInfo() {
     text('points of collision: ' + source.collidingPoints, 10, 145 + size);
     text('FPS: ' + round(frameRate()), 10, 175 + size);
     text('angle: ' + round(degrees(source.getAngleToSprite(enemies[0]))), 10, 200 + size);
+    text('distance: ' + round(spritesDistances[0]), 10, 230 + size);
     pop();
 }

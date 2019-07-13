@@ -24,25 +24,39 @@ class Source {
 
     getDistancesToSprites() {
         let distances = [];
-        this.spritesRays.forEach(ray => distances.push(this.position.dist(ray.endPoint) * cos(ray.direction.heading() - this.rotation)));
+        this.spritesRays.forEach(ray => {
+            ray.distance = p5.Vector.dist(ray.position, ray.endPoint);
+            // ray.distance *= cos(ray.direction.heading() + this.rotation);
+            distances.push(abs(ray.distance));
+        });
         return distances;
     }
 
-    getAngleToSprite(sprite) {
-        let index;
+    getSpriteRayIndex(sprite) {
         for (let i = 0; i < this.spritesRays.length; i++) {
             if (this.spritesRays[i].endPoint == sprite.position) {
-                index = i;
-                break;
+                return i;
             }
         }
-        // return this.rays[0].direction.angleBetween(this.spritesRays[index].direction);
-        return this.rays[0].direction.heading() - this.spritesRays[index].direction.heading();
+        return null;
     }
 
-    isVisible(sprite) {
-        const angle = this.getAngleToSprite(sprite);
-        return angle <= 0; // && angle < radians(this.fov);
+    getAngleToSprite(sprite) {
+        const index = this.getSpriteRayIndex(sprite);
+        const angle = atan2(this.rays[this.rays.length - 1].endPoint.y - this.position.y,
+            this.rays[this.rays.length - 1].endPoint.x - this.position.x) - atan2(this.spritesRays[index].endPoint.y - this.position.y,
+                this.spritesRays[index].endPoint.x - this.position.x);
+        return angle < 0 ? angle + radians(360) : angle;
+    }
+
+    canSee(sprite, obstacles) {
+        const ray = this.spritesRays[this.getSpriteRayIndex(sprite)];
+        for (let object of obstacles) {
+            if (ray.isIntersecting(object)) {
+                return false;
+            }
+        }
+        return this.getAngleToSprite(sprite) < radians(this.fov);
     }
 
     setFov(fov) {
@@ -92,8 +106,7 @@ class Source {
                 if (pointAndDistance) {
                     const pointOfCollision = pointAndDistance[0];
                     let tmp_distance = pointAndDistance[1];
-                    const angle = ray.direction.heading() - this.rotation;
-                    tmp_distance *= cos(angle);
+                    tmp_distance *= cos(ray.direction.heading() - this.rotation);
                     if (tmp_distance < ray.distance) {
                         ray.distance = tmp_distance;
                         closestPoint = pointOfCollision;
