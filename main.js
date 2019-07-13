@@ -216,8 +216,30 @@ function draw() {
 
     // 3D view
     push();
-    showWalls();
-    showEnemies();
+    // showWalls();
+    // showEnemies();
+    scene3D = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
+    rectWidth = sceneWidth / scene3D.length;
+    let spriteIndex = 0;
+    let wallIndex = 0;
+    for (let i = 0; i < scene3D.length; i++) {
+        const ray = source.spritesRays[source.getSpriteRayIndex(enemies[spriteIndex])];
+        if (ray.isIntersecting(walls[wallIndex])) {
+            showSprite(enemies[spriteIndex]);
+            showWall(scene3D[i], i);
+        } else {
+            showWall(scene3D[i], i);
+            showSprite(enemies[spriteIndex]);
+        }
+    }
+
+    // const ray = source.spritesRays[source.getSpriteRayIndex(sprite)];
+    // for (let object of obstacles) {
+    //     if (ray.isIntersecting(object)) {
+    //         return false;
+    //     }
+    // }
+
     showWeapon();
     pop();
 
@@ -232,7 +254,7 @@ function draw() {
     enemies.forEach(enemy => {
         enemy.animate();
         strokeWeight(1);
-        if (source.canSee(enemy, walls)) {
+        if (source.canSee(enemy)) {
             line(source.rays[source.rays.length - 1].position.x, source.rays[source.rays.length - 1].position.y, enemy.position.x, enemy.position.y);
         }
         strokeWeight(0);
@@ -299,14 +321,10 @@ function keyPressed() {
 }
 
 function showWalls() {
-    scene3D = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
-    rectWidth = sceneWidth / scene3D.length;
     translate(0, 0);
     let i = 0; // for rectangles
     scene3D.forEach(distance => {
         distance *= 2;
-        // rectBrightness = (1 / distance ** 2) * source.fov * 1500;
-        // rectBrightness = constrain(rectBrightness, 15, 140);
         rectBrightness = map(distance, min(scene3D) * 2, max(scene3D) * 2, 180, 50);
         rectHeight = (1 / distance) * source.fov * sceneHeight;
         noStroke();
@@ -314,19 +332,6 @@ function showWalls() {
         fill(rectBrightness);
         rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight);
     });
-}
-
-function sortSpritesDistancesDesc() {
-    spritesDistances.sort((el1, el2) => el2 - el1);
-}
-
-function assignDistancesToSprites() {
-    let index = 0;
-    enemies.forEach(enemy => enemy.distance = spritesDistances[index++]);
-}
-
-function sortSpritesByDistance() {
-    enemies.sort((el1, el2) => el2.distance - el1.distance);
 }
 
 function showEnemies() {
@@ -345,6 +350,45 @@ function showEnemies() {
         spritesDistancesIndex++;
         pop();
     });
+}
+
+function showWall(distance, i) {
+    translate(0, 0);
+    distance *= 2;
+    rectBrightness = map(distance, min(scene3D) * 2, max(scene3D) * 2, 180, 50);
+    rectHeight = (1 / distance) * source.fov * sceneHeight;
+    noStroke();
+    rectMode(CENTER);
+    fill(rectBrightness);
+    rect(i * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight);
+}
+
+function showSprite(sprite) {
+    const spriteDistanceIndex = source.getSpriteRayIndex(sprite);
+    spritesDistances[spriteDistanceIndex] *= 2;
+    push();
+    if (source.canSee(sprite)) {
+        translate(map(source.getAngleToSprite(sprite), radians(0), radians(source.fov), sceneWidth, 0), sceneHeight / 2);
+        imageMode(CENTER);
+        let scaleValue = ((1 / spritesDistances[spriteDistanceIndex]) * source.fov * sceneHeight) / 100;
+        scaleValue = constrain(scaleValue, 1, 13);
+        scale(scaleValue);
+        sprite.show(0, 25);
+    }
+    pop();
+}
+
+function sortSpritesDistancesDesc() {
+    spritesDistances.sort((el1, el2) => el2 - el1);
+}
+
+function assignDistancesToSprites() {
+    let index = 0;
+    enemies.forEach(enemy => enemy.distance = spritesDistances[index++]);
+}
+
+function sortSpritesByDistance() {
+    enemies.sort((el1, el2) => el2.distance - el1.distance);
 }
 
 function showWeapon() {
@@ -395,12 +439,12 @@ function showTextInfo() {
     let index = 1;
     val = 220;
     text('distances ', 10, 200 + size);
+    text('angles ', 100, 200 + size);
     enemies.forEach(enemy => {
         text('sp ' + index + ' ' + round(spritesDistances[index++ - 1]), 10, val + size);
         text(round(degrees(source.getAngleToSprite(enemy))), 100, val + size);
         val += 20;
     });
-    text('angles ', 100, 200 + size);
     pop();
 }
 

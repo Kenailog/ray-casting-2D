@@ -49,13 +49,7 @@ class Source {
         return angle < 0 ? angle + radians(360) : angle;
     }
 
-    canSee(sprite, obstacles) {
-        const ray = this.spritesRays[this.getSpriteRayIndex(sprite)];
-        for (let object of obstacles) {
-            if (ray.isIntersecting(object)) {
-                return false;
-            }
-        }
+    canSee(sprite) {
         return this.getAngleToSprite(sprite) < radians(this.fov);
     }
 
