@@ -35,6 +35,12 @@ let enemyAnimation = []; // holds frames where enemy is oriented front your posi
 
 let enemies = []; // array holding enemies
 
+let wallsIndexes = [];
+let hiddenSpritesIndexes = [];
+let distancesToHiddenIndexes = [];
+let visibleSpritesIndexes = [];
+let distanceToVisibleIndexes = [];
+
 let soundFire; // holds fire sound
 
 function preload() {
@@ -179,7 +185,7 @@ function setup() {
      */
     drawMode = false;
 
-    for (let index = 0; index < 10; index++) {
+    for (let index = 0; index < 1; index++) {
         enemies.push(new Enemy(random(minimapWidth), random(minimapHeight), enemyAnimation));
     }
 }
@@ -220,17 +226,100 @@ function draw() {
     // showEnemies();
     scene3D = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
     rectWidth = sceneWidth / scene3D.length;
-    let spriteIndex = 0;
-    let wallIndex = 0;
+
+    wallsIndexes = [];
+    hiddenSpritesIndexes = [];
+    distancesToHiddenIndexes = [];
+    visibleSpritesIndexes = [];
+    distanceToVisibleIndexes = [];
+
+    for (let i = 0; i < source.rays.length; i++) {
+        if (source.rays[i].endPoint.x <= minimapHeight && (source.rays[i].endPoint.y == 0 || source.rays[i].endPoint.y == minimapHeight)
+            || (source.rays[i].endPoint.x == 0 || source.rays[i].endPoint.x == minimapWidth) && source.rays[i].endPoint.y <= minimapHeight) {
+            wallsIndexes.push(i);
+        }
+    }
+
     for (let i = 0; i < scene3D.length; i++) {
-        const ray = source.spritesRays[source.getSpriteRayIndex(enemies[spriteIndex])];
-        if (ray.isIntersecting(walls[wallIndex])) {
-            showSprite(enemies[spriteIndex]);
-            showWall(scene3D[i], i);
+        if (wallsIndexes.length > 0) {
+            for (let j = 0; j < wallsIndexes.length; j++) {
+                if (i == wallsIndexes[j]) {
+                    showWall(scene3D[i], i);
+                    break;
+                }
+            }
+        } else {
+            break;
+        }
+    }
+
+    for (let i = 0; i < enemies.length; i++) {
+        const rayIndex = source.getSpriteRayIndex(enemies[i]);
+        for (let wall of walls) {
+            if (source.spritesRays[rayIndex].isIntersecting(wall)) {
+                distancesToHiddenIndexes.push(rayIndex);
+                hiddenSpritesIndexes.push(i);
+                break;
+            }
+        }
+    }
+
+    for (let i = 0; i < enemies.length; i++) {
+        const rayIndex = source.getSpriteRayIndex(enemies[i]);
+        if (hiddenSpritesIndexes.length > 0) {
+            for (let j = 0; j < hiddenSpritesIndexes.length; j++) {
+                if (i != hiddenSpritesIndexes[j]) {
+                    visibleSpritesIndexes.push(i);
+                    distanceToVisibleIndexes.push(rayIndex);
+                    break;
+                }
+            }
+        } else {
+            visibleSpritesIndexes.push(i);
+        }
+    }
+
+    for (let i = 0; i < enemies.length; i++) {
+        if (hiddenSpritesIndexes.length > 0) {
+            for (let j = 0; j < hiddenSpritesIndexes.length; j++) {
+                if (i == hiddenSpritesIndexes[j]) {
+                    showSprite(enemies[i]);
+                    break;
+                }
+            }
+        } else {
+            break;
+        }
+    }
+
+    for (let i = 0; i < scene3D.length; i++) {
+        if (wallsIndexes.length > 0) {
+            for (let j = 0; j < wallsIndexes.length; j++) {
+                if (i != wallsIndexes[j]) {
+                    showWall(scene3D[i], i);
+                    break;
+                }
+            }
         } else {
             showWall(scene3D[i], i);
-            showSprite(enemies[spriteIndex]);
         }
+    }
+
+    for (let i = 0; i < enemies.length; i++) {
+        if (visibleSpritesIndexes.length > 0) {
+            for (let j = 0; j < visibleSpritesIndexes.length; j++) {
+                if (i == visibleSpritesIndexes[j]) {
+                    showSprite(enemies[i]);
+                    break;
+                }
+            }
+        } else {
+            break;
+        }
+    }
+
+    if (hiddenSpritesIndexes.length == enemies.length) {
+        visibleSpritesIndexes = [];
     }
 
     // const ray = source.spritesRays[source.getSpriteRayIndex(sprite)];
@@ -261,7 +350,7 @@ function draw() {
         enemy.showOnMinimap();
     });
 
-    enemies.forEach(enemy => enemy.position.add(createVector(cos(noise(sceneWidth) * frameCount / 2), cos(noise(sceneHeight) * frameCount / 2))));
+    // enemies.forEach(enemy => enemy.position.add(createVector(cos(noise(sceneWidth) * frameCount / 2), cos(noise(sceneHeight) * frameCount / 2))));
     // if (enemies[0].distance < enemies[1].distance) {
     //     enemies[0].position.add(createVector(0, cos(40) / .9));
     //     enemies[1].position.add(createVector(cos(40)) / .9, 0);
@@ -330,7 +419,7 @@ function showWalls() {
         noStroke();
         rectMode(CENTER);
         fill(rectBrightness);
-        rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight);
+        rect(i++ - i * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight);
     });
 }
 

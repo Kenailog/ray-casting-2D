@@ -45,7 +45,7 @@ class Source {
         const index = this.getSpriteRayIndex(sprite);
         const angle = atan2(this.rays[this.rays.length - 1].endPoint.y - this.position.y,
             this.rays[this.rays.length - 1].endPoint.x - this.position.x) - atan2(this.spritesRays[index].endPoint.y - this.position.y,
-            this.spritesRays[index].endPoint.x - this.position.x);
+                this.spritesRays[index].endPoint.x - this.position.x);
         return angle < 0 ? angle + radians(360) : angle;
     }
 
@@ -115,9 +115,11 @@ class Source {
     }
 
     showRayToPoint(point) {
-        stroke(255, 90);
-        strokeWeight(lineStrokeWeight);
-        line(this.position.x, this.position.y, point.x, point.y);
-        strokeWeight(1);
+        if (point) {
+            stroke(255, 90);
+            strokeWeight(lineStrokeWeight);
+            line(this.position.x, this.position.y, point.x, point.y);
+            strokeWeight(1);
+        }
     }
 }
