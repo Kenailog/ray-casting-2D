@@ -144,15 +144,13 @@ function setup() {
     /*
      *  creates sliders for fov and rays at position
      */
-    fovSlider = createSlider(0, 360, 60);
-    fovSlider.position(80, minimapHeight + 55);
+    makeFovSlider();
     fovSlider.input(() => {
         fov = fovSlider.value();
         source.setFov(fov);
     });
 
-    raysSlider = createSlider(0, 500, 120);
-    raysSlider.position(80, minimapHeight + 85);
+    makeRaysSlider();
     raysSlider.input(() => {
         rays = raysSlider.value();
         source.setRays(rays);
@@ -182,7 +180,7 @@ function setup() {
      */
     drawMode = false;
 
-    for (let index = 0; index < 10; index++) {
+    for (let index = 0; index < 5; index++) {
         enemies.push(new Enemy(random(minimapWidth), random(minimapHeight), enemyAnimation));
     }
 }
@@ -366,7 +364,7 @@ function showEnemies() {
             translate(map(source.getAngleToSprite(enemy), radians(0), radians(source.fov), sceneWidth, 0), sceneHeight / 2);
             imageMode(CENTER);
             let scaleValue = ((1 / spritesZBuffer[spritesZBufferIndex]) * source.fov * sceneHeight) / 100;
-            scaleValue = constrain(scaleValue, 1, 13);
+            scaleValue = constrain(scaleValue, 0, 13);
             scale(scaleValue);
             enemy.show(0, 25);
         }
@@ -512,4 +510,14 @@ function showOnMinimap(object) {
     point(object.position.x, object.position.y);
     strokeWeight(0);
     stroke(255);
+}
+
+function makeFovSlider() {
+    fovSlider = createSlider(0, 360, 60);
+    fovSlider.position(80, minimapHeight + 55);
+}
+
+function makeRaysSlider() {
+    raysSlider = createSlider(0, 500, 120);
+    raysSlider.position(80, minimapHeight + 85);
 }
