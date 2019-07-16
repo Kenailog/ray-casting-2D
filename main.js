@@ -313,7 +313,7 @@ function draw() {
         strokeWeight(1);
 
         /*
-         *  draw ray to enemy in fov
+         *  draw ray to enemy in fov and when theres no sprite ray - wall intersection (sprite behind obstacle should not be visible)
          */
         if (source.canSee(enemy, walls)) {
             line(source.rays[source.rays.length - 1].position.x, source.rays[source.rays.length - 1].position.y, enemy.position.x, enemy.position.y);
