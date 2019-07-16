@@ -8,6 +8,7 @@ class Source {
         this.currentSpeed = 0;
         this.runModifier = .3;
         this.stamina = 100;
+        this.isMoving = false;
         this.rays = [];
         this.spritesRays = [];
         this.fov = 60;

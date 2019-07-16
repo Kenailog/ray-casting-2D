@@ -198,13 +198,19 @@ function draw() {
     }
     if (keyIsDown(UP_ARROW)) {
         source.move(source.currentSpeed);
+        source.isMoving = true;
     } else if (keyIsDown(DOWN_ARROW)) {
         source.move(-source.currentSpeed);
+        source.isMoving = true;
     }
 
-    if (keyIsDown(16)) {
+    if (!(keyIsDown(UP_ARROW) || keyIsDown(DOWN_ARROW))) {
+        source.isMoving = false;
+    }
+
+    if (keyIsDown(16) && source.isMoving) {
         if (source.stamina > 0) {
-            source.stamina--;
+            source.stamina -= .5;
             source.currentSpeed = source.moveSpeed + source.runModifier;
         }
     }
@@ -213,8 +219,8 @@ function draw() {
         source.currentSpeed = source.moveSpeed;
     }
 
-    if (!keyIsDown(16) && source.stamina < 100) {
-        source.stamina++;
+    if ((!keyIsDown(16) || !source.isMoving) && source.stamina < 100) {
+        source.stamina += .2;
     }
 
     background(0);
@@ -413,12 +419,16 @@ function showTextInfo() {
     text('mouse click -> mouse click to draw', 10, 5 + size);
     text('use arrows to move, left shift to sprint', 10, 30 + size);
     text('ctrl to toogle draw mode: '.concat(drawMode ? "on" : "off"), 10, 115 + size);
-    text('stamina: ' + source.stamina, 10, 145 + size);
-    stroke(100);
-    strokeWeight(6);
-    line(100, 140 + size, 200, 140 + size);
-    stroke(255);
-    line(100, 140 + size, map(source.stamina, 0, 100, 100, 200), 140 + size);
+    text('stamina: ' + round(source.stamina), 10, 145 + size);
+    stroke(0, 100);
+    strokeWeight(14);
+    strokeCap(PROJECT);
+    line(110, 140 + size, 310, 140 + size);
+    let staminaColorRed = map(source.stamina, 0, 100, 200, 0);
+    let staminaColorGreen = map(source.stamina, 0, 100, 0, 0);
+    let staminaColorBlue = map(source.stamina, 0, 100, 0, 200);
+    stroke(staminaColorRed, staminaColorGreen, staminaColorBlue);
+    line(110, 140 + size, map(source.stamina, 0, 100, 110, 310), 140 + size);
     strokeWeight(0);
     text('fov: ' + source.fov, 10, 55 + size);
     text('rays: ' + source.rays.length, 10, 85 + size);
