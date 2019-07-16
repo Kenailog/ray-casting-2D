@@ -184,6 +184,11 @@ function setup() {
     for (let index = 0; index < 20; index++) {
         enemies.push(new Enemy(random(minimapWidth), random(minimapHeight), enemyAnimation));
     }
+
+    /*
+     *  each enemy has different fase of animation
+     */
+    enemies.forEach(enemy => enemy.frameCounter = random(100));
 }
 
 /*
