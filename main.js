@@ -182,7 +182,7 @@ function setup() {
      */
     drawMode = false;
 
-    for (let index = 0; index < 30; index++) {
+    for (let index = 0; index < 20; index++) {
         enemies.push(new Enemy(random(minimapWidth), random(minimapHeight), enemyAnimation));
     }
 }
@@ -244,16 +244,21 @@ function draw() {
 
     // enemies.forEach(enemy => enemy.position.add(createVector(cos(noise(sceneWidth) * frameCount / 2), cos(noise(sceneHeight) * frameCount / 2))));
     for (let i = 0; i < enemies.length; i++) {
-        let x = noise(i + t);
-        let y = noise(i + T);
-        x = round(x) == 0 ? -x : x;
-        y = round(y) == 0 ? -y : y;
-        x /= 3;
-        y /= 3;
-        enemies[i].position.x += x;
-        enemies[i].position.y += y;
-        t += .0001;
-        T += .0001;
+        if (enemies[i].distance < 100) {
+            enemies[i].position.x += (source.position.x - enemies[i].position.x) * .005;
+            enemies[i].position.y += (source.position.y - enemies[i].position.y) * .005;
+        } else {
+            let x = noise(i + t);
+            let y = noise(i + T);
+            x = round(x) == 0 ? -x : x;
+            y = round(y) == 0 ? -y : y;
+            x /= 3;
+            y /= 3;
+            enemies[i].position.x += x;
+            enemies[i].position.y += y;
+            t += .0001;
+            T += .0001;
+        }
     }
     // if (enemies[0].distance < enemies[1].distance) {
     //     enemies[0].position.add(createVector(0, cos(40) / .9));
