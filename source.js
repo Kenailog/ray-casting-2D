@@ -7,6 +7,7 @@ class Source {
         this.moveSpeed = .5;
         this.currentSpeed = 0;
         this.runModifier = .3;
+        this.health = 100;
         this.stamina = 100;
         this.isMoving = false;
         this.rays = [];

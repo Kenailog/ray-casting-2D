@@ -270,14 +270,11 @@ function draw() {
         } else {
             enemies[i].move(i);
         }
+
+        if (enemies[i].distance < 30 && source.health > 1) {
+            source.health -= .05; // it will be damage caused by enemy
+        }
     }
-    // if (enemies[0].distance < enemies[1].distance) {
-    //     enemies[0].position.add(createVector(0, cos(40) / .9));
-    //     enemies[1].position.add(createVector(cos(40)) / .9, 0);
-    // } else {
-    //     enemies[1].position.add(createVector(0, cos(40) / .9));
-    //     enemies[0].position.add(createVector(cos(40)) / .9, 0);
-    // }
 
     source.show();
 
@@ -419,29 +416,49 @@ function showTextInfo() {
     text('mouse click -> mouse click to draw', 10, 5 + size);
     text('use arrows to move, left shift to sprint', 10, 30 + size);
     text('ctrl to toogle draw mode: '.concat(drawMode ? "on" : "off"), 10, 115 + size);
-    text('stamina: ' + round(source.stamina), 10, 145 + size);
+
+    /*
+     *  health bar
+     */
+    text('health: ' + round(source.health), 10, 150 + size);
     stroke(0, 100);
     strokeWeight(14);
     strokeCap(PROJECT);
-    line(110, 140 + size, 310, 140 + size);
+    line(110, 145 + size, 310, 145 + size);
+    let healthColorRed = map(source.health, 0, 100, 200, 0);
+    let healthColorGreen = map(source.health, 0, 100, 0, 150);
+    let healthColorBlue = map(source.health, 0, 100, 0, 0);
+    stroke(healthColorRed, healthColorGreen, healthColorBlue);
+    line(110, 145 + size, map(source.health, 0, 100, 110, 310), 145 + size);
+    strokeWeight(0);
+
+    /*
+     *  stamina bar
+     */
+    text('stamina: ' + round(source.stamina), 10, 170 + size);
+    stroke(0, 100);
+    strokeWeight(14);
+    strokeCap(PROJECT);
+    line(110, 165 + size, 310, 165 + size);
     let staminaColorRed = map(source.stamina, 0, 100, 200, 0);
     let staminaColorGreen = map(source.stamina, 0, 100, 0, 0);
     let staminaColorBlue = map(source.stamina, 0, 100, 0, 200);
     stroke(staminaColorRed, staminaColorGreen, staminaColorBlue);
-    line(110, 140 + size, map(source.stamina, 0, 100, 110, 310), 140 + size);
+    line(110, 165 + size, map(source.stamina, 0, 100, 110, 310), 165 + size);
     strokeWeight(0);
+
     text('fov: ' + source.fov, 10, 55 + size);
     text('rays: ' + source.rays.length, 10, 85 + size);
-    text('FPS: ' + round(frameRate()), 10, 175 + size);
+    text('FPS: ' + round(frameRate()), 10, 205 + size);
     let index = 1;
-    val = 220;
-    text('distances ', 10, 200 + size);
+    val = 250;
+    text('distances ', 10, 230 + size);
     enemies.forEach(enemy => {
         text('sp ' + index + ' ' + round(spritesZBuffer[index++ - 1]), 10, val + size);
         text(round(degrees(source.getAngleToSprite(enemy))), 100, val + size);
         val += 20;
     });
-    text('angles ', 100, 200 + size);
+    text('angles ', 100, 230 + size);
     pop();
 }
 
