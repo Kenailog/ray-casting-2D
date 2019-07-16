@@ -202,7 +202,20 @@ function draw() {
         source.move(-source.currentSpeed);
     }
 
-    source.currentSpeed = keyIsDown(16) ? source.moveSpeed + source.runModifier : source.moveSpeed;
+    if (keyIsDown(16)) {
+        if (source.stamina > 0) {
+            source.stamina--;
+            source.currentSpeed = source.moveSpeed + source.runModifier;
+        }
+    }
+
+    if (!keyIsDown(16) || source.stamina <= 0) {
+        source.currentSpeed = source.moveSpeed;
+    }
+
+    if (!keyIsDown(16) && source.stamina < 100) {
+        source.stamina++;
+    }
 
     background(0);
 
@@ -400,6 +413,13 @@ function showTextInfo() {
     text('mouse click -> mouse click to draw', 10, 5 + size);
     text('use arrows to move, left shift to sprint', 10, 30 + size);
     text('ctrl to toogle draw mode: '.concat(drawMode ? "on" : "off"), 10, 115 + size);
+    text('stamina: ' + source.stamina, 10, 145 + size);
+    stroke(100);
+    strokeWeight(6);
+    line(100, 140 + size, 200, 140 + size);
+    stroke(255);
+    line(100, 140 + size, map(source.stamina, 0, 100, 100, 200), 140 + size);
+    strokeWeight(0);
     text('fov: ' + source.fov, 10, 55 + size);
     text('rays: ' + source.rays.length, 10, 85 + size);
     text('FPS: ' + round(frameRate()), 10, 175 + size);

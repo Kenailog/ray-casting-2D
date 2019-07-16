@@ -5,8 +5,9 @@ class Source {
         this.rotation = 0;
         this.velocity = 0;
         this.moveSpeed = .5;
-        this.currentSpeed;
+        this.currentSpeed = 0;
         this.runModifier = .3;
+        this.stamina = 100;
         this.rays = [];
         this.spritesRays = [];
         this.fov = 60;
