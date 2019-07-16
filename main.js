@@ -340,6 +340,12 @@ function draw() {
         }
     }
 
+
+    /*
+     *  sprites are separated when moving one direction 
+     */
+    separateSprites(enemies);
+
     /*
      *  draw player
      */
@@ -595,4 +601,15 @@ function makeFovSlider() {
 function makeRaysSlider() {
     raysSlider = createSlider(0, 500, 120);
     raysSlider.position(80, minimapHeight + 85);
+}
+
+function separateSprites(sprites) {
+    for (let i = 0; i < sprites.length; i++) {
+        for (let j = i + 1; j < sprites.length; j++) {
+            if (sprites[i].position.x - sprites[j].position.x <= 100 && sprites[i].position.y - sprites[j].position.y <= 100) {
+                sprites[i].position.x -= sprites[i].chaseSpeed * 5;
+                sprites[i].position.y -= sprites[i].chaseSpeed * 5;
+            }
+        }
+    }
 }
