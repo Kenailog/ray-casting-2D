@@ -181,7 +181,7 @@ function setup() {
     /*
      *  makes some enemies
      */
-    for (let index = 0; index < 5; index++) {
+    for (let index = 0; index < 20; index++) {
         enemies.push(new Enemy(random(minimapWidth), random(minimapHeight), enemyAnimation));
     }
 }
