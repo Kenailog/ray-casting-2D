@@ -143,6 +143,7 @@ function setup() {
 
     /*
      *  creates sliders for fov and rays at position
+     *  assing value from slider to source field
      */
     makeFovSlider();
     fovSlider.input(() => {
@@ -159,13 +160,10 @@ function setup() {
     /*
      *  loads default rectangles to scene 
      */
-    // for (let index = 0; index < 5; index++) {
     let rect = new Rectangle(0, 0, minimapWidth / 3, minimapHeight / 3);
     rect = new Rectangle(0, minimapHeight - 30, minimapWidth / 4, minimapHeight / 3 + 70);
     rect = new Rectangle(minimapWidth / 2, 0, minimapWidth / 1.5, minimapHeight / 3);
     rect = new Rectangle(minimapWidth / 1.4, minimapHeight / 1.5, minimapWidth, minimapHeight);
-    // val += .9;
-    // }
 
     /*
      *  loads walls to each side of scene
@@ -180,6 +178,9 @@ function setup() {
      */
     drawMode = false;
 
+    /*
+     *  makes some enemies
+     */
     for (let index = 0; index < 5; index++) {
         enemies.push(new Enemy(random(minimapWidth), random(minimapHeight), enemyAnimation));
     }
@@ -223,61 +224,135 @@ function draw() {
 
     background(0);
 
-    // sky
+    /*
+     *  draw sky rectangles
+     */
     showSky();
 
-    // floor
+    /*
+     *  draw floor rectangles
+     */
     showFloor();
 
+    /*
+     *  make rays to sprites 
+     *  get distance from each sprite
+     */
     source.updateSpritesPosition(enemies);
     spritesZBuffer = source.getDistancesToSprites();
 
+    /*
+     *  each sprite holds distance to player
+     */
     assignDistancesToSprites();
+
+    /*
+     *  sorts sprites depth buffer descending order
+     */
     sortSpritesZBufferDesc();
+
+    /*
+     *  sorts sprites descending order
+     *  sprites are drawn from most distant to nearest
+     */
     sortSpritesByDistance();
 
     // 3D view
     push();
+
+    /*
+     *  draw rectangles
+     */
     showWalls();
+
+    /*
+     *  draw enemies
+     */
     showEnemies();
+
+    /*
+     *  draw weapon
+     */
     showWeapon();
+
     pop();
 
+    /*
+     *  prevents given objects from going through wall
+     */
     enemies.forEach(enemy => preventColliding(enemy, walls));
     preventColliding(source, walls);
+
+    /*
+     *  draw rays on minimap
+     */
     source.rays.forEach(ray => source.showRayToPoint(ray.endPoint));
 
+    /*
+     *  draw left transparent rectangle
+     */
     fill(0, 70);
     rect(0, 0, minimapWidth, sceneHeight);
 
+    /*
+     *  draw walls on minimap
+     */
     walls.forEach(wall => wall.show());
+
+
     enemies.forEach(enemy => {
+        /*
+         *  makes enemy aniamate
+         */
         enemy.animate();
         strokeWeight(1);
+
+        /*
+         *  draw ray to enemy in fov
+         */
         if (source.canSee(enemy, walls)) {
             line(source.rays[source.rays.length - 1].position.x, source.rays[source.rays.length - 1].position.y, enemy.position.x, enemy.position.y);
         }
+
         strokeWeight(0);
+
+        /*
+         *  draw enemy on minimap
+         */
         showOnMinimap(enemy);
     });
 
-    // enemies.forEach(enemy => enemy.position.add(createVector(cos(noise(sceneWidth) * frameCount / 2), cos(noise(sceneHeight) * frameCount / 2))));
     for (let i = 0; i < enemies.length; i++) {
+        /*
+         *  follow player if distance is less than given value, otherwise move freely
+         */
         if (enemies[i].distance < 100) {
             enemies[i].chase(source);
         } else {
             enemies[i].move(i);
         }
 
+        /*
+         *  deal damage to player if the distance is less than given value 
+         */
         if (enemies[i].distance < 30 && source.health > 1) {
             source.health -= .05; // it will be damage caused by enemy
         }
     }
 
+    /*
+     *  draw player
+     */
     source.show();
 
+    /*
+     *  show stats & info
+     */
     showTextInfo();
 
+    /*
+     *  show what rectangle you trying to draw
+     */
     if (customWallPointX1 && customWallPointY1) {
         stroke(255);
         strokeWeight(lineStrokeWeight + 4);
