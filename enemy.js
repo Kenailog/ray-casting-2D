@@ -6,6 +6,9 @@ class Enemy {
         this.frameCounter = 0;
         this.spritesheet = spritesheet;
         this.distance;
+        this.chaseSpeed = .005;
+        this.t = 0;
+        this.T = 1000;
 
         this.front = [this.spritesheet[0], this.spritesheet[5], this.spritesheet[10]];
         this.attack = [this.spritesheet[15], this.spritesheet[20], this.spritesheet[25], this.spritesheet[30]];
@@ -38,11 +41,21 @@ class Enemy {
         this.spritesheet = spritesheet;
     }
 
-    showOnMinimap() {
-        stroke(255, 0, 0);
-        strokeWeight(5);
-        point(this.position.x, this.position.y);
-        strokeWeight(0);
-        stroke(255);
+    chase(target) {
+        this.position.x += (target.position.x - this.position.x) * this.chaseSpeed;
+        this.position.y += (target.position.y - this.position.y) * this.chaseSpeed;
+    }
+
+    move(factor) {
+        let x = noise(this.t + factor);
+        let y = noise(this.T + factor);
+        x = round(x) == 0 ? -x : x;
+        y = round(y) == 0 ? -y : y;
+        x /= 3;
+        y /= 3;
+        this.position.x += x;
+        this.position.y += y;
+        this.t += .0001;
+        this.T += .0001;
     }
 }

@@ -5,41 +5,41 @@ let fov; // field of view
 let lineStrokeWeight = 1; // lines thickness
 let walls = []; // array holding all walls in scene
 let source; // player
+
 let drawMode; // enable/disable draw mode
 let customWallPointX1; // point holding point used in draw mode
 let customWallPointY1;
 let customWallPointX2;
 let customWallPointY2;
-let val = 0.0; // used for random location when loading first walls to scene
 
-let scene3D; // array for rays, used in rendering 3D view
-let spritesDistances;
+let zBuffer; // distances to walls, used in rendering 3D view
+let spritesZBuffer; // distances to sprites
 let minimapWidth;
 let minimapHeight;
-let sceneWidth;
-let sceneHeight;
+let sceneWidth; // 3D view width
+let sceneHeight; // 3D view height
 
 let numberOfRectInFloor; // number of rectangles in floor
 
-let rectWidth;
-let rectHeight;
-let rectBrightness;
+let rectWidth; // 3D view rectangle width
+let rectHeight; // 3D view rectangle height
+let rectBrightness; // 3D view rectangle brightness
 
 let gunSpriteSheet; // gun sprite sheet
 let gunAnimation = []; // array holding each frame from gun sprite sheet
 let isFiring = false; // used to check firing state for proper displaying frames 
-let fireFrameCounter; // controls which frame should be used in a particular draw function (loop) iteration
+let fireFrameCounter; // controls which frame of weapon animation should be used in a particular draw function (loop) iteration
 
 let enemySpriteSheet; // enemy sprite sheet
-let enemyAnimation = []; // holds frames where enemy is oriented front your position
+let enemyAnimation = []; // holds frames
 
-let enemies = []; // array holding enemies
+let enemies = []; // array for enemies
 
 let soundFire; // holds fire sound
 
-let t = 0;
-let T = 1000;
-
+/*
+ *  load images and sounds
+ */
 function preload() {
     gunSpriteSheet = loadImage('assets/gunSheet.png');
     enemySpriteSheet = loadImage('assets/Imp-from-Doom-Spritesheet.png');
@@ -182,7 +182,7 @@ function setup() {
      */
     drawMode = false;
 
-    for (let index = 0; index < 20; index++) {
+    for (let index = 0; index < 10; index++) {
         enemies.push(new Enemy(random(minimapWidth), random(minimapHeight), enemyAnimation));
     }
 }
@@ -197,10 +197,12 @@ function draw() {
         source.rotate(.05);
     }
     if (keyIsDown(UP_ARROW)) {
-        source.move(.5);
+        source.move(source.currentSpeed);
     } else if (keyIsDown(DOWN_ARROW)) {
-        source.move(-.5);
+        source.move(-source.currentSpeed);
     }
+
+    source.currentSpeed = keyIsDown(16) ? source.moveSpeed + source.runModifier : source.moveSpeed;
 
     background(0);
 
@@ -211,10 +213,10 @@ function draw() {
     showFloor();
 
     source.updateSpritesPosition(enemies);
-    spritesDistances = source.getDistancesToSprites();
+    spritesZBuffer = source.getDistancesToSprites();
 
     assignDistancesToSprites();
-    sortSpritesDistancesDesc();
+    sortSpritesZBufferDesc();
     sortSpritesByDistance();
 
     // 3D view
@@ -239,25 +241,15 @@ function draw() {
             line(source.rays[source.rays.length - 1].position.x, source.rays[source.rays.length - 1].position.y, enemy.position.x, enemy.position.y);
         }
         strokeWeight(0);
-        enemy.showOnMinimap();
+        showOnMinimap(enemy);
     });
 
     // enemies.forEach(enemy => enemy.position.add(createVector(cos(noise(sceneWidth) * frameCount / 2), cos(noise(sceneHeight) * frameCount / 2))));
     for (let i = 0; i < enemies.length; i++) {
         if (enemies[i].distance < 100) {
-            enemies[i].position.x += (source.position.x - enemies[i].position.x) * .005;
-            enemies[i].position.y += (source.position.y - enemies[i].position.y) * .005;
+            enemies[i].chase(source);
         } else {
-            let x = noise(i + t);
-            let y = noise(i + T);
-            x = round(x) == 0 ? -x : x;
-            y = round(y) == 0 ? -y : y;
-            x /= 3;
-            y /= 3;
-            enemies[i].position.x += x;
-            enemies[i].position.y += y;
-            t += .0001;
-            T += .0001;
+            enemies[i].move(i);
         }
     }
     // if (enemies[0].distance < enemies[1].distance) {
@@ -319,30 +311,30 @@ function keyPressed() {
 }
 
 function showWalls() {
-    scene3D = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
-    rectWidth = sceneWidth / scene3D.length;
+    zBuffer = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
+    rectWidth = sceneWidth / zBuffer.length;
     translate(0, 0);
     let i = 0; // for rectangles
-    scene3D.forEach(distance => {
-        distance *= 2;
+    zBuffer.forEach(distance => {
+        distance *= 3;
         // rectBrightness = (1 / distance ** 2) * source.fov * 1500;
         // rectBrightness = constrain(rectBrightness, 15, 140);
-        rectBrightness = map(distance, min(scene3D) * 2, max(scene3D) * 2, 180, 50);
+        rectBrightness = map(distance, min(zBuffer) * 3, max(zBuffer) * 3, 180, 50);
         rectHeight = (1 / distance) * source.fov * sceneHeight;
         noStroke();
         rectMode(CENTER);
         fill(rectBrightness);
-        rect(i++ * rectWidth - 1, sceneHeight / 2, rectWidth, rectHeight);
+        rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight);
     });
 }
 
-function sortSpritesDistancesDesc() {
-    spritesDistances.sort((el1, el2) => el2 - el1);
+function sortSpritesZBufferDesc() {
+    spritesZBuffer.sort((el1, el2) => el2 - el1);
 }
 
 function assignDistancesToSprites() {
     let index = 0;
-    enemies.forEach(enemy => enemy.distance = spritesDistances[index++]);
+    enemies.forEach(enemy => enemy.distance = spritesZBuffer[index++]);
 }
 
 function sortSpritesByDistance() {
@@ -350,19 +342,19 @@ function sortSpritesByDistance() {
 }
 
 function showEnemies() {
-    let spritesDistancesIndex = 0;
+    let spritesZBufferIndex = 0;
     enemies.forEach(enemy => {
-        spritesDistances[spritesDistancesIndex] *= 2;
+        spritesZBuffer[spritesZBufferIndex] *= 3;
         push();
         if (source.canSee(enemy, walls)) {
             translate(map(source.getAngleToSprite(enemy), radians(0), radians(source.fov), sceneWidth, 0), sceneHeight / 2);
             imageMode(CENTER);
-            let scaleValue = ((1 / spritesDistances[spritesDistancesIndex]) * source.fov * sceneHeight) / 100;
+            let scaleValue = ((1 / spritesZBuffer[spritesZBufferIndex]) * source.fov * sceneHeight) / 100;
             scaleValue = constrain(scaleValue, 1, 13);
             scale(scaleValue);
             enemy.show(0, 25);
         }
-        spritesDistancesIndex++;
+        spritesZBufferIndex++;
         pop();
     });
 }
@@ -406,17 +398,16 @@ function showTextInfo() {
     push();
     translate(0, minimapHeight);
     text('mouse click -> mouse click to draw', 10, 5 + size);
-    text('use arrows to move', 10, 30 + size);
+    text('use arrows to move, left shift to sprint', 10, 30 + size);
     text('ctrl to toogle draw mode: '.concat(drawMode ? "on" : "off"), 10, 115 + size);
     text('fov: ' + source.fov, 10, 55 + size);
     text('rays: ' + source.rays.length, 10, 85 + size);
-    text('points of collision: ' + source.collidingPoints, 10, 145 + size);
     text('FPS: ' + round(frameRate()), 10, 175 + size);
     let index = 1;
     val = 220;
     text('distances ', 10, 200 + size);
     enemies.forEach(enemy => {
-        text('sp ' + index + ' ' + round(spritesDistances[index++ - 1]), 10, val + size);
+        text('sp ' + index + ' ' + round(spritesZBuffer[index++ - 1]), 10, val + size);
         text(round(degrees(source.getAngleToSprite(enemy))), 100, val + size);
         val += 20;
     });
@@ -466,4 +457,12 @@ function preventColliding(object, obstacles) {
             }
         }
     }
+}
+
+function showOnMinimap(object) {
+    stroke(255, 0, 0);
+    strokeWeight(5);
+    point(object.position.x, object.position.y);
+    strokeWeight(0);
+    stroke(255);
 }

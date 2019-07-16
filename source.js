@@ -4,10 +4,12 @@ class Source {
         this.position = createVector(positionX, positionY);
         this.rotation = 0;
         this.velocity = 0;
+        this.moveSpeed = .5;
+        this.currentSpeed;
+        this.runModifier = .3;
         this.rays = [];
         this.spritesRays = [];
         this.fov = 60;
-        this.collidingPoints = 0;
         for (let index = -this.fov / 2; index < this.fov / 2; index += .5) {
             this.rays.push(new Ray(this.position, radians(index)));
         }
@@ -114,7 +116,6 @@ class Source {
                 }
             });
             ray.endPoint = closestPoint;
-            this.collidingPoints++;
             distances.push(ray.distance);
         });
         return distances;
