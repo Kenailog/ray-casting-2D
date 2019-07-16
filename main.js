@@ -37,6 +37,9 @@ let enemies = []; // array holding enemies
 
 let soundFire; // holds fire sound
 
+let t = 0;
+let T = 1000;
+
 function preload() {
     gunSpriteSheet = loadImage('assets/gunSheet.png');
     enemySpriteSheet = loadImage('assets/Imp-from-Doom-Spritesheet.png');
@@ -179,7 +182,7 @@ function setup() {
      */
     drawMode = false;
 
-    for (let index = 0; index < 10; index++) {
+    for (let index = 0; index < 30; index++) {
         enemies.push(new Enemy(random(minimapWidth), random(minimapHeight), enemyAnimation));
     }
 }
@@ -239,7 +242,19 @@ function draw() {
         enemy.showOnMinimap();
     });
 
-    enemies.forEach(enemy => enemy.position.add(createVector(cos(noise(sceneWidth) * frameCount / 2), cos(noise(sceneHeight) * frameCount / 2))));
+    // enemies.forEach(enemy => enemy.position.add(createVector(cos(noise(sceneWidth) * frameCount / 2), cos(noise(sceneHeight) * frameCount / 2))));
+    for (let i = 0; i < enemies.length; i++) {
+        let x = noise(i + t);
+        let y = noise(i + T);
+        x = round(x) == 0 ? -x : x;
+        y = round(y) == 0 ? -y : y;
+        x /= 3;
+        y /= 3;
+        enemies[i].position.x += x;
+        enemies[i].position.y += y;
+        t += .0001;
+        T += .0001;
+    }
     // if (enemies[0].distance < enemies[1].distance) {
     //     enemies[0].position.add(createVector(0, cos(40) / .9));
     //     enemies[1].position.add(createVector(cos(40)) / .9, 0);
@@ -312,7 +327,7 @@ function showWalls() {
         noStroke();
         rectMode(CENTER);
         fill(rectBrightness);
-        rect(i++ * rectWidth, sceneHeight / 2, rectWidth + 1, rectHeight);
+        rect(i++ * rectWidth - 1, sceneHeight / 2, rectWidth, rectHeight);
     });
 }
 
