@@ -35,11 +35,12 @@ let enemyAnimation = []; // holds frames where enemy is oriented front your posi
 
 let enemies = []; // array holding enemies
 
-let wallsIndexes = [];
-let hiddenSpritesIndexes = [];
-let distancesToHiddenIndexes = [];
-let visibleSpritesIndexes = [];
-let distanceToVisibleIndexes = [];
+let outerWallsIndexes;
+let innerWallsIndexes;
+let hiddenSpritesIndexes;
+let distancesToHiddenIndexes;
+let visibleSpritesIndexes;
+let distanceToVisibleIndexes;
 
 let soundFire; // holds fire sound
 
@@ -227,7 +228,8 @@ function draw() {
     scene3D = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
     rectWidth = sceneWidth / scene3D.length;
 
-    wallsIndexes = [];
+    outerWallsIndexes = [];
+    innerWallsIndexes = [];
     hiddenSpritesIndexes = [];
     distancesToHiddenIndexes = [];
     visibleSpritesIndexes = [];
@@ -236,14 +238,16 @@ function draw() {
     for (let i = 0; i < source.rays.length; i++) {
         if (source.rays[i].endPoint.x <= minimapHeight && (source.rays[i].endPoint.y == 0 || source.rays[i].endPoint.y == minimapHeight)
             || (source.rays[i].endPoint.x == 0 || source.rays[i].endPoint.x == minimapWidth) && source.rays[i].endPoint.y <= minimapHeight) {
-            wallsIndexes.push(i);
+            outerWallsIndexes.push(i);
+        } else {
+            innerWallsIndexes.push(i);
         }
     }
 
     for (let i = 0; i < scene3D.length; i++) {
-        if (wallsIndexes.length > 0) {
-            for (let j = 0; j < wallsIndexes.length; j++) {
-                if (i == wallsIndexes[j]) {
+        if (outerWallsIndexes.length > 0) {
+            for (let j = 0; j < outerWallsIndexes.length; j++) {
+                if (i == outerWallsIndexes[j]) {
                     showWall(scene3D[i], i);
                     break;
                 }
@@ -259,25 +263,28 @@ function draw() {
             if (source.spritesRays[rayIndex].isIntersecting(wall)) {
                 distancesToHiddenIndexes.push(rayIndex);
                 hiddenSpritesIndexes.push(i);
-                break;
             }
+            if (!source.spritesRays[rayIndex].isIntersecting(wall)) {
+                visibleSpritesIndexes.push(i);
+            }
+            break;
         }
     }
 
-    for (let i = 0; i < enemies.length; i++) {
-        const rayIndex = source.getSpriteRayIndex(enemies[i]);
-        if (hiddenSpritesIndexes.length > 0) {
-            for (let j = 0; j < hiddenSpritesIndexes.length; j++) {
-                if (i != hiddenSpritesIndexes[j]) {
-                    visibleSpritesIndexes.push(i);
-                    distanceToVisibleIndexes.push(rayIndex);
-                    break;
-                }
-            }
-        } else {
-            visibleSpritesIndexes.push(i);
-        }
-    }
+    // for (let i = 0; i < enemies.length; i++) {
+    //     const rayIndex = source.getSpriteRayIndex(enemies[i]);
+    //     if (hiddenSpritesIndexes.length > 0) {
+    //         for (let j = 0; j < hiddenSpritesIndexes.length; j++) {
+    //             if (i != hiddenSpritesIndexes[j]) {
+    //                 visibleSpritesIndexes.push(i);
+    //                 distanceToVisibleIndexes.push(rayIndex);
+    //                 break;
+    //             }
+    //         }
+    //     } else {
+    //         visibleSpritesIndexes.push(i);
+    //     }
+    // }
 
     for (let i = 0; i < enemies.length; i++) {
         if (hiddenSpritesIndexes.length > 0) {
@@ -293,15 +300,13 @@ function draw() {
     }
 
     for (let i = 0; i < scene3D.length; i++) {
-        if (wallsIndexes.length > 0) {
-            for (let j = 0; j < wallsIndexes.length; j++) {
-                if (i != wallsIndexes[j]) {
+        if (innerWallsIndexes.length > 0) {
+            for (let j = 0; j < innerWallsIndexes.length; j++) {
+                if (i == innerWallsIndexes[j]) {
                     showWall(scene3D[i], i);
                     break;
                 }
             }
-        } else {
-            showWall(scene3D[i], i);
         }
     }
 
@@ -318,9 +323,9 @@ function draw() {
         }
     }
 
-    if (hiddenSpritesIndexes.length == enemies.length) {
-        visibleSpritesIndexes = [];
-    }
+    // if (hiddenSpritesIndexes.length == enemies.length) {
+    //     visibleSpritesIndexes = [];
+    // }
 
     // const ray = source.spritesRays[source.getSpriteRayIndex(sprite)];
     // for (let object of obstacles) {
