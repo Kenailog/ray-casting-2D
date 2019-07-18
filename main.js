@@ -195,36 +195,57 @@ function setup() {
  *  main loop
  */
 function draw() {
+    /*
+     *  rotate left
+     */
     if (keyIsDown(LEFT_ARROW)) {
         source.rotate(-.05);
+        /*
+        *  rotate right
+        */
     } else if (keyIsDown(RIGHT_ARROW)) {
         source.rotate(.05);
     }
+
+    /*
+    *  move up
+    */
     if (keyIsDown(UP_ARROW)) {
         source.move(source.currentSpeed);
-        source.isMoving = true;
+        /*
+         *  move back
+         */
     } else if (keyIsDown(DOWN_ARROW)) {
         source.move(-source.currentSpeed);
-        source.isMoving = true;
     }
 
     if (!(keyIsDown(UP_ARROW) || keyIsDown(DOWN_ARROW))) {
         source.isMoving = false;
     }
 
+    /*
+    *  if player is moving and left shift is pressed down player enter run state, stamina is decreasing
+    */
     if (keyIsDown(16) && source.isMoving) {
         if (source.stamina > 0) {
-            source.stamina -= .5;
+            source.decreaseStamina(5);
             source.currentSpeed = source.moveSpeed + source.runModifier;
         }
     }
 
+    /*
+     *  if left shift is up or stamina is 0 or less player automaticly exit run state
+    */
     if (!keyIsDown(16) || source.stamina <= 0) {
         source.currentSpeed = source.moveSpeed;
     }
 
+
+    /*
+    *  if not in run state increase stamina
+    */
     if ((!keyIsDown(16) || !source.isMoving) && source.stamina < 100) {
-        source.stamina += .2;
+        source.increaseStamina(.2);
     }
 
     background(0);

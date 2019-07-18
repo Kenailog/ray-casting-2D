@@ -85,6 +85,7 @@ class Source {
     move(direction) {
         this.velocity = p5.Vector.fromAngle(this.rotation).setMag(direction);
         this.position.add(this.velocity);
+        this.isMoving = true;
     }
 
     updateRays(rays) {
@@ -129,5 +130,13 @@ class Source {
         strokeWeight(lineStrokeWeight);
         line(this.position.x, this.position.y, point.x, point.y);
         strokeWeight(1);
+    }
+
+    increaseStamina(speed) {
+        this.stamina += speed;
+    }
+
+    decreaseStamina(speed) {
+        this.stamina -= speed;
     }
 }
