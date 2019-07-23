@@ -1,0 +1,2 @@
+# Ray casting 2D
+Game that uses Ray casting technique for rendering illusion of 3D space. It uses JavaScript with p5.js library for quick drawning elements to screen. There are also sound effects and animated sprites. Player has health and stamina bars that can decrease or increase according to what is happening. You can change field of view and number of casted rays in real time as well as put custom walls on minimap. 
