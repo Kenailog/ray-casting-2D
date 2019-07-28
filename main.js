@@ -26,6 +26,7 @@ let rectHeight; // 3D view rectangle height
 let rectBrightness; // 3D view rectangle brightness
 
 let gunSpriteSheet; // gun sprite sheet
+let spriteDataJSON; // JSON holding frames for spritesheet
 let gunAnimation = []; // array holding each frame from gun sprite sheet
 let isFiring = false; // used to check firing state for proper displaying frames 
 let fireFrameCounter; // controls which frame of weapon animation should be used in a particular draw function (loop) iteration
@@ -42,26 +43,21 @@ let soundFire; // holds fire sound
  */
 function preload() {
     gunSpriteSheet = loadImage('assets/gunSheet.png');
+    spriteDataJSON = loadJSON('assets/spriteData.json');
     enemySpriteSheet = loadImage('assets/Imp-from-Doom-Spritesheet.png');
     soundFire = loadSound('assets/dsshotgn.wav');
 }
 
 function setup() {
     /*
-     *  add frames from sprite sheet to array
+     *  add frames from sprite sheet to animation array
      */
-    gunAnimation.push(gunSpriteSheet.get(0, 0, 100, 154));
-    gunAnimation.push(gunSpriteSheet.get(100, 0, 80, 154));
-    gunAnimation.push(gunSpriteSheet.get(180, 0, 90, 154));
-    gunAnimation.push(gunSpriteSheet.get(270, 0, 72, 154));
-    gunAnimation.push(gunSpriteSheet.get(342, 0, 90, 154));
-    gunAnimation.push(gunSpriteSheet.get(430, 0, 558 - 430, 154));
-    gunAnimation.push(gunSpriteSheet.get(558, 0, 688 - 558, 154));
-    gunAnimation.push(gunSpriteSheet.get(688, 0, 807 - 688, 154));
-    gunAnimation.push(gunSpriteSheet.get(807, 0, 926 - 807, 154));
+    for (let i = 0; i < 9; i++) {
+        gunAnimation.push(gunSpriteSheet.get(spriteDataJSON.gunFrames[i].position));
+    }
 
     /*
-     *  scales each image in sprite sheet
+     *  scale each image in gun sprite sheet
      */
     gunAnimation.forEach(frame => {
         frame.resize(0, 180);
@@ -201,15 +197,15 @@ function draw() {
     if (keyIsDown(LEFT_ARROW)) {
         source.rotate(-.05);
         /*
-        *  rotate right
-        */
+         *  rotate right
+         */
     } else if (keyIsDown(RIGHT_ARROW)) {
         source.rotate(.05);
     }
 
     /*
-    *  move up
-    */
+     *  move up
+     */
     if (keyIsDown(UP_ARROW)) {
         source.move(source.currentSpeed);
         /*
@@ -224,8 +220,8 @@ function draw() {
     }
 
     /*
-    *  if player is moving and left shift is pressed down player enter run state, stamina is decreasing
-    */
+     *  if player is moving and left shift is pressed down player enter run state, stamina is decreasing
+     */
     if (keyIsDown(16) && source.isMoving) {
         if (source.stamina > 0) {
             source.decreaseStamina(5);
@@ -235,15 +231,15 @@ function draw() {
 
     /*
      *  if left shift is up or stamina is 0 or less player automaticly exit run state
-    */
+     */
     if (!keyIsDown(16) || source.stamina <= 0) {
         source.currentSpeed = source.moveSpeed;
     }
 
 
     /*
-    *  if not in run state increase stamina
-    */
+     *  if not in run state increase stamina
+     */
     if ((!keyIsDown(16) || !source.isMoving) && source.stamina < 100) {
         source.increaseStamina(.2);
     }
