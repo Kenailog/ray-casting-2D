@@ -53,7 +53,8 @@ function setup() {
      *  add frames from sprite sheet to animation array
      */
     for (let i = 0; i < 9; i++) {
-        gunAnimation.push(gunSpriteSheet.get(spriteDataJSON.gunFrames[i].position));
+        let position = spriteDataJSON.gunFrames[i].position;
+        gunAnimation.push(gunSpriteSheet.get(position.x, position.y, position.w, position.h));
     }
 
     /*
