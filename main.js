@@ -429,7 +429,7 @@ function keyPressed() {
 }
 
 function showWalls() {
-    zBuffer = source.lookFor(wals); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
+    zBuffer = source.lookFor(walls); // assignment prevents flickering when changing number of rays, which occurs when iterating directly
     rectWidth = sceneWidth / zBuffer.length;
     translate(0, 0);
     let i = 0; // for rectangles
